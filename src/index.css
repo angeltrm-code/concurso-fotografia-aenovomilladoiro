@@ -6,3 +6,10 @@
 .font-montserrat {
   font-family: 'Montserrat', sans-serif;
 }
+
+.swiper-slide-shadow-left {
+  background-image: linear-gradient(to left, #2C415E, transparent) !important;
+}
+.swiper-slide-shadow-right {
+  background-image: linear-gradient(to right, #2C415E, transparent) !important;
+}

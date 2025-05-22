@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import PhotoUpload from "./components/PhotoUpload";
+import Header from "./components/Header";
+import PhotoCarousel from "./components/PhotoCarousel";
+import TarjetaBases from "./components/TarjetaBases";
 
 const images = [
   "/slide1.jpg",
   "/slide2.jpg",
   "/slide3.jpg",
-  "/slide4.jpg"
+  "/slide4.jpg",
+  "/slide5.jpg",
+  "/slide6.jpg"
 ];
 
 const basesDelConcurso = [
@@ -39,99 +44,10 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 font-montserrat">
-      {/* Hero section con carrusel y header superpuesto */}
-      <div className="relative bg-gray-900">
-        {/* Header superpuesto */}
-        <header className="absolute top-0 left-0 right-0 z-50 py-4">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between">
-              <a href="/" className="flex items-center">
-                <img src="/LogoAENM.png" alt="AEPEM" className="h-12" />
-                <span className="text-xl font-bold ml-2 text-white">
-                  AEPEM
-                </span>
-              </a>
-
-              <nav className="hidden md:flex items-center space-x-1">
-                <a 
-                  href="https://aenovomilladoiro.com/noticias" 
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-gray-100 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  Noticias
-                </a>
-                <a 
-                  href="https://aenovomilladoiro.com/directorio" 
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-gray-100 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  Directorio
-                </a>
-                <a 
-                  href="https://aenovomilladoiro.com/axudas" 
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-gray-100 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  Axudas
-                </a>
-                <a 
-                  href="https://aenovomilladoiro.com/servizos" 
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-gray-100 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  Servizos
-                </a>
-                <a 
-                  href="https://aenovomilladoiro.com/hazte-socio" 
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-gray-100 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  Hazte Socio
-                </a>
-                <a 
-                  href="https://aenovomilladoiro.com/contacto" 
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-gray-100 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  Contacto
-                </a>
-              </nav>
-            </div>
-          </div>
-        </header>
-
-        {/* Carrusel */}
-        <div className="max-w-7xl mx-auto">
-          <div className="relative overflow-hidden">
-            <div className="relative h-[600px]">
-              {images.map((img, index) => (
-                <div
-                  key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ${
-                    index === currentImage ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt={`Slide ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60"></div>
-              <div className="absolute inset-0 flex items-center">
-                <div className="max-w-4xl mx-auto px-4 w-full">
-                  <div className="text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                      XI Certame de Fotografía Comercial AE Novo Milladoiro
-                    </h1>
-                    <p className="text-xl md:text-2xl text-gray-200">
-                      Captura a esencia do noso parque empresarial
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="flex-1">
-        {/* Contenido principal */}
+      <Header />
+      <main className="flex-1 pt-8 md:pt-12">
+        <PhotoCarousel />
+        <TarjetaBases />
         <div className="relative">
           <div className="max-w-7xl mx-auto px-4 py-16">
             {/* Descripción */}
