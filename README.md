@@ -1,58 +1,91 @@
-# XI Certame de Fotografía Comercial AE Novo Milladoiro
+# XI Certame de Fotografía - Backend Express
 
-Página web para la participación en el XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro, integrada visualmente con la web oficial de la Asociación de Empresarios Novo Milladoiro.
+Este backend gestiona las participaciones del XI Certame de Fotografía. Permite recibir datos y fotos de los participantes, guardar los archivos y registrar todas las participaciones.
 
-## Enlace al repositorio
-https://github.com/angeltrm-code/concurso-fotografia-aenovomilladoiro
+## 🚀 Instalación
 
-## Instrucciones de desarrollo
-
-1. Instala las dependencias:
+1. Clona el repositorio o copia los archivos en tu máquina.
+2. Instala las dependencias:
    ```bash
    npm install
    ```
-2. Inicia el entorno de desarrollo:
+
+## ▶️ Cómo arrancar el servidor
+
+```bash
+node server.js
+```
+
+El servidor escuchará por defecto en el puerto 4000 (o el que definas en la variable de entorno `PORT`).
+
+## 📤 Endpoint POST `/api/participar`
+
+- **Método:** POST
+- **Tipo de datos:** `multipart/form-data`
+- **Campos requeridos:**
+  - `nombre` (texto)
+  - `email` (texto)
+  - `titulo` (texto)
+  - `foto` (archivo imagen)
+- **¿Qué hace?**
+  - Guarda la imagen en la carpeta `/uploads` (se crea automáticamente si no existe), renombrada con la fecha y el nombre original.
+  - Registra los datos de la participación en el archivo `participaciones.json` junto con la fecha de recepción.
+  - Devuelve un mensaje de confirmación al cliente.
+
+## 📥 Endpoint GET `/api/participaciones`
+
+- **Método:** GET
+- **¿Qué hace?**
+  - Devuelve un array con todas las participaciones registradas en `participaciones.json`.
+  - Cada participación incluye: nombre, email, título, nombre del archivo y fecha.
+  - Si no hay participaciones, devuelve `[]`.
+  - Si ocurre un error de lectura, devuelve error 500.
+
+## 📂 Estructura de archivos generados
+
+- `/uploads/` — Carpeta donde se guardan las imágenes subidas.
+- `participaciones.json` — Archivo donde se registran todas las participaciones en formato JSON.
+
+## 🧪 Cómo probarlo
+
+### Con Postman o similar
+1. Haz una petición POST a `http://localhost:4000/api/participar`.
+2. En el body, selecciona `form-data` y añade los campos:
+   - `nombre`: tu nombre
+   - `email`: tu email
+   - `titulo`: título de la foto
+   - `foto`: selecciona un archivo de imagen
+3. Envía la petición. Deberías recibir `{ "mensaje": "Fotografía recibida con éxito!" }`.
+
+### Desde el frontend
+- Configura tu formulario para enviar los datos como `multipart/form-data` al endpoint `http://localhost:4000/api/participar`.
+- Puedes consultar todas las participaciones con una petición GET a `http://localhost:4000/api/participaciones`.
+
+## ✉️ Configuración de envío de emails automáticos
+
+Este backend pode enviar un correo ao organizador do certame (co arquivo adxunto) e unha confirmación ao participante tras recibir a súa participación.
+
+1. Instala as dependencias necesarias:
    ```bash
-   npm run dev
+   npm install nodemailer dotenv
    ```
+2. Crea un arquivo `.env` na raíz do proxecto co seguinte contido (exemplo):
+   ```env
+   SMTP_HOST=smtp.tu-servidor.com
+   SMTP_PORT=465
+   SMTP_USER=usuario@dominio.com
+   SMTP_PASS=contrasinal
+   EMAIL_ORIGEN=usuario@dominio.com
+   EMAIL_DESTINO=correooficial@dominio.com
+   ```
+   - **EMAIL_DESTINO**: será o correo oficial do certame (podes cambialo cando o teñas definitivo).
+   - **EMAIL_ORIGEN**: debe ser unha conta válida do servidor SMTP.
 
-La web estará disponible en `http://localhost:5173`.
+3. O sistema enviará:
+   - Un email ao organizador co arquivo da foto adxunto e os datos do participante.
+   - Un email de confirmación ao participante agradecendo a súa participación.
 
-## Estructura del proyecto
-
-- `/public`: Archivos públicos y estáticos
-- `/src/components/PhotoUpload.jsx`: Componente principal del formulario de participación
-- `/src/App.jsx`: Página principal y estructura general
-- `/src/index.css`: Estilos base con TailwindCSS
-
-## Componente `PhotoUpload`
-
-Formulario para la participación en el certame. Incluye los siguientes campos:
-- Nome e apelidos
-- NIF ou NIE
-- Enderezo (dirección postal)
-- Correo electrónico
-- Teléfono de contacto
-- Título da fotografía (en galego)
-- Subida de 1 única imaxe (JPG/JPEG, alta resolución)
-- Checkbox de aceptación das bases
-
-**Restricciones:**
-- Solo se puede subir una imagen
-- Formatos permitidos: `.jpg` o `.jpeg`
-- El botón de envío se desactiva si falta algún campo requerido
-
-**Comportamiento:**
-- Previsualización de la imagen seleccionada
-- Al enviar, muestra un resumen de los datos y la imagen (modo confirmación)
-- Muestra los datos por consola (modo desarrollo)
-- Simula el envío (la entrega real será por email a `foto@aenovomilladoiro.com`)
-
-## Pendiente para futuras fases
-- Integración real del envío de la imagen
-- Validación estricta de los campos
-- Subida de autorización firmada si aparecen personas identificables
-- Carta de cesión de imagen
+> **Nota:** Se usas Gmail, debes crear unha contrasinal de aplicación e activar o acceso a apps menos seguras.
 
 ---
 

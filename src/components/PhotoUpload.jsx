@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const OBLIGATORIO = <span className="text-red-500">*</span>;
+const OBLIGATORIO = <span style={{ color: '#e53e3e' }}>*</span>;
 
 const PhotoUpload = () => {
   const [formData, setFormData] = useState({
@@ -8,19 +8,21 @@ const PhotoUpload = () => {
     apellidos: "",
     email: "",
     telefono: "",
-    empresa: "",
+    nifnie: "",
+    direccion: "",
     titulo: "",
     descripcion: "",
     imagen: null,
+    autorizacion: null,
+    persoasRecoñecibles: false,
   });
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [showSummary, setShowSummary] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Limpiar error cuando el usuario empieza a escribir
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -39,24 +41,30 @@ const PhotoUpload = () => {
         setPreview(reader.result);
       };
       reader.readAsDataURL(file);
-      // Limpiar error cuando se sube una imagen válida
       if (errors.imagen) {
         setErrors((prev) => ({ ...prev, imagen: "" }));
       }
     }
   };
 
+  const handleAutorizacionChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, autorizacion: file }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.nombre) newErrors.nombre = "O nome é obrigatorio";
     if (!formData.apellidos) newErrors.apellidos = "Os apelidos son obrigatorios";
+    if (!formData.nifnie) newErrors.nifnie = "O NIF/NIE é obrigatorio";
+    if (!formData.direccion) newErrors.direccion = "O enderezo é obrigatorio";
     if (!formData.email) newErrors.email = "O email é obrigatorio";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "O email non é válido";
     if (!formData.telefono) newErrors.telefono = "O teléfono é obrigatorio";
-    if (!formData.empresa) newErrors.empresa = "A empresa é obrigatoria";
     if (!formData.titulo) newErrors.titulo = "O título é obrigatorio";
     if (!formData.descripcion) newErrors.descripcion = "A descrición é obrigatoria";
     if (!formData.imagen) newErrors.imagen = "A imaxe é obrigatoria";
+    if (formData.persoasRecoñecibles && !formData.autorizacion) newErrors.autorizacion = "Debes achegar a autorización";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -77,249 +85,166 @@ const PhotoUpload = () => {
       apellidos: "",
       email: "",
       telefono: "",
-      empresa: "",
+      nifnie: "",
+      direccion: "",
       titulo: "",
       descripcion: "",
       imagen: null,
+      autorizacion: null,
+      persoasRecoñecibles: false,
     });
+    setPreview(null);
+  };
+
+  // Nueva función para eliminar la imagen
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({ ...prev, imagen: null }));
     setPreview(null);
   };
 
   if (showSummary) {
     return (
-      <div className="bg-white/80 backdrop-blur-lg rounded-xl shadow-lg p-8 border border-white/20">
-        <h3 className="text-2xl font-bold text-[#2c415e] mb-6 text-center">Confirma os teus datos</h3>
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Nome</p>
-              <p className="mt-1">{formData.nombre}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Apelidos</p>
-              <p className="mt-1">{formData.apellidos}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Email</p>
-              <p className="mt-1">{formData.email}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Teléfono</p>
-              <p className="mt-1">{formData.telefono}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Empresa</p>
-              <p className="mt-1">{formData.empresa}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Título</p>
-              <p className="mt-1">{formData.titulo}</p>
-            </div>
+      <div className="form-section">
+        <div className="form-card">
+          <h3 className="form-title">Confirma os teus datos</h3>
+          <div style={{ width: '100%' }}>
+            <div className="form-group"><b>Nome:</b> {formData.nombre}</div>
+            <div className="form-group"><b>Apelidos:</b> {formData.apellidos}</div>
+            <div className="form-group"><b>Email:</b> {formData.email}</div>
+            <div className="form-group"><b>Teléfono:</b> {formData.telefono}</div>
+            <div className="form-group"><b>NIF/NIE:</b> {formData.nifnie}</div>
+            <div className="form-group"><b>Enderezo:</b> {formData.direccion}</div>
+            <div className="form-group"><b>Título:</b> {formData.titulo}</div>
+            <div className="form-group"><b>Descrición:</b> {formData.descripcion}</div>
+            {preview && (
+              <div className="form-group">
+                <b>Imaxe:</b><br />
+                <img src={preview} alt="Previsualización" style={{ maxHeight: 180, borderRadius: 12, margin: '1rem auto' }} />
+              </div>
+            )}
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Descrición</p>
-            <p className="mt-1">{formData.descripcion}</p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: 24 }}>
+            <button onClick={() => setShowSummary(false)} className="form-submit-btn" style={{ background: '#e2e8f0', color: '#2C415E' }}>Modificar</button>
+            <button onClick={handleConfirmSubmit} className="form-submit-btn">Confirmar</button>
           </div>
-          {preview && (
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-2">Imaxe</p>
-              <img src={preview} alt="Previsualización" className="rounded-lg shadow-md max-h-64 mx-auto" />
-            </div>
-          )}
-        </div>
-        <div className="mt-8 flex justify-end gap-4">
-          <button
-            onClick={() => setShowSummary(false)}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-          >
-            Modificar
-          </button>
-          <button
-            onClick={handleConfirmSubmit}
-            className="px-4 py-2 bg-[#2c415e] text-white rounded-lg text-sm font-medium hover:bg-[#1e2d3f] transition-colors"
-          >
-            Confirmar
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-lg rounded-xl shadow-lg p-8 border border-white/20">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Nome {OBLIGATORIO}
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            className={`mt-1 w-full rounded-lg border ${
-              errors.nombre ? 'border-red-300' : 'border-gray-300/50'
-            } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-            placeholder="O teu nome"
-          />
-          {errors.nombre && <p className="mt-1 text-xs text-red-500">{errors.nombre}</p>}
+    <div className="form-section">
+      <form onSubmit={handleSubmit} className="form-card">
+        <h2 className="form-title">Formulario de participación</h2>
+        <div className="form-group">
+          <label className="form-label">Nome {OBLIGATORIO}</label>
+          <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="form-input" placeholder="O teu nome" />
+          {errors.nombre && <div className="form-error">{errors.nombre}</div>}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Apelidos {OBLIGATORIO}
-          </label>
-          <input
-            type="text"
-            name="apellidos"
-            value={formData.apellidos}
-            onChange={handleChange}
-            className={`mt-1 w-full rounded-lg border ${
-              errors.apellidos ? 'border-red-300' : 'border-gray-300/50'
-            } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-            placeholder="Os teus apelidos"
-          />
-          {errors.apellidos && <p className="mt-1 text-xs text-red-500">{errors.apellidos}</p>}
+        <div className="form-group">
+          <label className="form-label">Apelidos {OBLIGATORIO}</label>
+          <input type="text" name="apellidos" value={formData.apellidos} onChange={handleChange} className="form-input" placeholder="Os teus apelidos" />
+          {errors.apellidos && <div className="form-error">{errors.apellidos}</div>}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Email {OBLIGATORIO}
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`mt-1 w-full rounded-lg border ${
-              errors.email ? 'border-red-300' : 'border-gray-300/50'
-            } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-            placeholder="O teu email"
-          />
-          {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+        <div className="form-group">
+          <label className="form-label">Email {OBLIGATORIO}</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" placeholder="O teu email" />
+          {errors.email && <div className="form-error">{errors.email}</div>}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Teléfono {OBLIGATORIO}
-          </label>
-          <input
-            type="tel"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            className={`mt-1 w-full rounded-lg border ${
-              errors.telefono ? 'border-red-300' : 'border-gray-300/50'
-            } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-            placeholder="O teu teléfono"
-          />
-          {errors.telefono && <p className="mt-1 text-xs text-red-500">{errors.telefono}</p>}
+        <div className="form-group">
+          <label className="form-label">Teléfono {OBLIGATORIO}</label>
+          <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} className="form-input" placeholder="O teu teléfono" />
+          {errors.telefono && <div className="form-error">{errors.telefono}</div>}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Empresa {OBLIGATORIO}
-          </label>
-          <input
-            type="text"
-            name="empresa"
-            value={formData.empresa}
-            onChange={handleChange}
-            className={`mt-1 w-full rounded-lg border ${
-              errors.empresa ? 'border-red-300' : 'border-gray-300/50'
-            } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-            placeholder="Nome da empresa"
-          />
-          {errors.empresa && <p className="mt-1 text-xs text-red-500">{errors.empresa}</p>}
+        <div className="form-group">
+          <label className="form-label">NIF/NIE {OBLIGATORIO}</label>
+          <input type="text" name="nifnie" value={formData.nifnie} onChange={handleChange} className="form-input" placeholder="O teu NIF ou NIE" />
+          {errors.nifnie && <div className="form-error">{errors.nifnie}</div>}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Título da imaxe {OBLIGATORIO}
-          </label>
-          <input
-            type="text"
-            name="titulo"
-            value={formData.titulo}
-            onChange={handleChange}
-            className={`mt-1 w-full rounded-lg border ${
-              errors.titulo ? 'border-red-300' : 'border-gray-300/50'
-            } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-            placeholder="Título para a túa fotografía"
-          />
-          {errors.titulo && <p className="mt-1 text-xs text-red-500">{errors.titulo}</p>}
+        <div className="form-group">
+          <label className="form-label">Enderezo {OBLIGATORIO}</label>
+          <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="form-input" placeholder="O teu enderezo" />
+          {errors.direccion && <div className="form-error">{errors.direccion}</div>}
         </div>
-      </div>
-
-      <div className="mt-6">
-        <label className="block text-sm font-medium text-gray-700">
-          Descrición da imaxe {OBLIGATORIO}
-        </label>
-        <textarea
-          name="descripcion"
-          value={formData.descripcion}
-          onChange={handleChange}
-          rows="4"
-          className={`mt-1 w-full rounded-lg border ${
-            errors.descripcion ? 'border-red-300' : 'border-gray-300/50'
-          } px-3 py-2 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-1 focus:ring-[#2c415e] focus:border-[#2c415e]`}
-          placeholder="Describe brevemente a túa fotografía"
-        ></textarea>
-        {errors.descripcion && <p className="mt-1 text-xs text-red-500">{errors.descripcion}</p>}
-      </div>
-
-      <div className="mt-6">
-        <label className="block text-sm font-medium text-gray-700">
-          Imaxe {OBLIGATORIO}
-        </label>
-        <div className="mt-2">
-          <div 
-            className={`flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg ${
-              errors.imagen ? 'border-red-300 bg-red-50/50' : 'border-gray-300/50 hover:border-[#2c415e]'
-            } transition-colors cursor-pointer bg-white/50 backdrop-blur-sm`}
-            onClick={() => document.querySelector('input[name="imagen"]').click()}
-          >
-            <div className="space-y-1 text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <div className="flex text-sm text-gray-600">
-                <label className="relative cursor-pointer rounded-md font-medium text-[#2c415e] hover:text-[#1e2d3f] focus-within:outline-none">
-                  <span>Sube unha imaxe</span>
-                  <input
-                    type="file"
-                    name="imagen"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    className="sr-only"
-                  />
-                </label>
-                <p className="pl-1">ou arrastra e solta</p>
-              </div>
-              <p className="text-xs text-gray-500">PNG, JPG, GIF ata 10MB</p>
-            </div>
+        <div className="form-group">
+          <label className="form-label">Título da imaxe {OBLIGATORIO}</label>
+          <input type="text" name="titulo" value={formData.titulo} onChange={handleChange} className="form-input" placeholder="Título para a túa fotografía" />
+          {errors.titulo && <div className="form-error">{errors.titulo}</div>}
+        </div>
+        <div className="form-group">
+          <label className="form-label">Descrición da imaxe {OBLIGATORIO}</label>
+          <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows="4" className="form-textarea" placeholder="Describe brevemente a túa fotografía"></textarea>
+          {errors.descripcion && <div className="form-error">{errors.descripcion}</div>}
+        </div>
+        <div className="form-group">
+          <label className="form-label">¿Aparecen persoas recoñecibles na fotografía? {OBLIGATORIO}</label>
+          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', marginTop: 4 }}>
+            <label style={{ fontWeight: 500 }}>
+              <input type="checkbox" name="persoasRecoñecibles" checked={formData.persoasRecoñecibles} onChange={handleChange} /> Si
+            </label>
+            <label style={{ fontWeight: 500 }}>
+              <input type="checkbox" name="persoasRecoñecibles" checked={!formData.persoasRecoñecibles} onChange={() => setFormData((prev) => ({ ...prev, persoasRecoñecibles: false, autorizacion: null }))} /> Non
+            </label>
           </div>
         </div>
-        {errors.imagen && <p className="mt-1 text-xs text-red-500">{errors.imagen}</p>}
-        {preview && (
-          <div className="mt-4">
-            <img src={preview} alt="Previsualización" className="max-h-64 rounded-lg mx-auto" />
+        {formData.persoasRecoñecibles && (
+          <div className="form-group">
+            <label className="form-label">Autorización para persoas recoñecibles (PDF/JPG/PNG) {OBLIGATORIO}</label>
+            <input type="file" name="autorizacion" accept=".pdf,image/jpeg,image/jpg,image/png" onChange={handleAutorizacionChange} className="form-input" />
+            {errors.autorizacion && <div className="form-error">{errors.autorizacion}</div>}
           </div>
         )}
-      </div>
-
-      <div className="mt-8 flex justify-end">
-        <button
-          type="submit"
-          className="inline-flex items-center px-4 py-2 bg-[#2c415e] text-white rounded-lg text-sm font-medium hover:bg-[#1e2d3f] transition-colors"
-        >
-          <span>Enviar participación</span>
-          <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-        </button>
-      </div>
-    </form>
+        <div className="form-group">
+          <label className="form-label">Imaxe {OBLIGATORIO}</label>
+          <div className="form-file-wrapper">
+            <label className="form-file-label">
+              Seleccionar arquivo
+              <input
+                type="file"
+                name="imagen"
+                onChange={handleImageChange}
+                accept="image/*"
+                className="form-file-input"
+              />
+            </label>
+            <span className="form-file-name">
+              {formData.imagen ? formData.imagen.name : "Ningún arquivo seleccionado"}
+            </span>
+          </div>
+          {errors.imagen && <div className="form-error">{errors.imagen}</div>}
+          {preview && (
+            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img src={preview} alt="Previsualización" style={{ maxHeight: 180, borderRadius: 12, margin: '0 auto', boxShadow: '0 2px 8px 0 rgba(44,65,94,0.10)' }} />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                style={{
+                  marginTop: 16,
+                  background: '#e53e3e',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '0.6rem 1.5rem',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px 0 rgba(44,65,94,0.10)',
+                  transition: 'background 0.2s',
+                  outline: 'none',
+                  display: 'block',
+                }}
+              >
+                Eliminar imaxe
+              </button>
+            </div>
+          )}
+          <div style={{ color: '#2C415E', fontWeight: 500, marginTop: 10, textAlign: 'center', fontSize: '0.98rem' }}>
+            O nome do arquivo da imaxe debe coincidir co título da fotografía.
+          </div>
+        </div>
+        <button type="submit" className="form-submit-btn">Enviar participación</button>
+      </form>
+    </div>
   );
 };
 

@@ -1,22 +1,24 @@
 import React from "react";
+import "../App.css";
 
+// Componente Header: barra superior fija con logo y navegación principal
 const Header = () => (
-  <header className="sticky top-0 z-50 bg-white shadow-sm w-full">
-    <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-      {/* Contenedor del logo */}
-      <div className="flex items-center" id="header-logo-container">
-        <a href="/" className="flex items-center">
-          <img src="/LogoAENM.png" alt="Logo AE Novo Milladoiro" className="h-12 w-auto" />
+  <header className="header">
+    <div className="header-container">
+      {/* Logo de la asociación */}
+      <div className="header-logo">
+        <a href="/">
+          <img src="/LogoAENM.png" alt="Logo AE Novo Milladoiro" />
         </a>
       </div>
-      {/* Contenedor de los botones */}
-      <div className="flex items-center" id="header-menu-container">
-        <nav className="flex items-center gap-10">
-          <a href="#" className="font-semibold text-[#2C415E] hover:text-[#FF5614] transition-colors">Inicio</a>
-          <a href="#asociacion" className="font-semibold text-[#2C415E] hover:text-[#FF5614] transition-colors">Asociación</a>
-          <a href="#contacto" className="font-semibold text-[#2C415E] hover:text-[#FF5614] transition-colors">Contacto</a>
-        </nav>
-      </div>
+      {/* Navegación principal */}
+      <nav className="header-nav">
+        <ul className="header-nav-list">
+          <li><a href="#" className="header-nav-link">Inicio</a></li>
+          <li><a href="#asociacion" className="header-nav-link">Asociación</a></li>
+          <li><a href="#contacto" className="header-nav-link">Contacto</a></li>
+        </ul>
+      </nav>
     </div>
   </header>
 );

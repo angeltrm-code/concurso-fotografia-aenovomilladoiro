@@ -13,3 +13,7 @@
 .swiper-slide-shadow-right {
   background-image: linear-gradient(to right, #2C415E, transparent) !important;
 }
+
+#root {
+  text-align: center;
+}
