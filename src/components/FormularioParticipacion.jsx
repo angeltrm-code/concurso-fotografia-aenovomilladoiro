@@ -57,7 +57,7 @@ const FormularioParticipacion = () => {
   return (
     <form onSubmit={handleSubmit} style={{
       maxWidth: 400,
-      margin: "2rem auto",
+      margin: "2rem 0.75rem",
       padding: "2rem 1.5rem",
       background: "#fff",
       borderRadius: 16,

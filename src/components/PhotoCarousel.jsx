@@ -17,7 +17,7 @@ const imagenes = [
 ];
 
 const PhotoCarousel = () => (
-  <section className="w-full pt-12 pb-16 bg-neutral-100 text-center">
+  <section className="w-full pt-12 pb-8 md:pb-16 bg-neutral-100 text-center">
     <h2 className="text-3xl md:text-4xl font-extrabold text-[#2C415E] mb-8 tracking-tight drop-shadow-sm">Galería de inspiración</h2>
     <div className="max-w-7xl mx-auto px-8">
       <Swiper
