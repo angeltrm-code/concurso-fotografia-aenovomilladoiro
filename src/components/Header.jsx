@@ -8,7 +8,7 @@ const Header = () => (
       {/* Logo de la asociación */}
       <div className="header-logo">
         <a href="/">
-          <img src="/LogoAENM.png" alt="Logo AE Novo Milladoiro" />
+          <img src="/LogoAENM-2025.png" alt="Logo AE Novo Milladoiro" />
         </a>
       </div>
       {/* Navegación principal */}
