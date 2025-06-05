@@ -136,4 +136,10 @@ router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, 
     }
 });
 
-export default router; 
+// Importar rutas
+const participacionesRoutes = require('./routes/participaciones');
+
+// Usar rutas
+router.use('/participaciones', participacionesRoutes);
+
+module.exports = router; 
