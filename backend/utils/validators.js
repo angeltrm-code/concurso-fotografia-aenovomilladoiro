@@ -1,7 +1,7 @@
-import { z } from 'zod';
+const { z } = require('zod');
 
 // Esquema de validación para los datos del formulario
-export const participacionSchema = z.object({
+const participacionSchema = z.object({
     nombre: z.string()
         .min(2, 'O nome debe ter polo menos 2 caracteres')
         .max(50, 'O nome non pode ter máis de 50 caracteres')
@@ -40,7 +40,7 @@ export const participacionSchema = z.object({
 });
 
 // Función para sanitizar texto (eliminar caracteres potencialmente peligrosos)
-export const sanitizeText = (text) => {
+const sanitizeText = (text) => {
     if (!text) return '';
     return text
         .replace(/[<>]/g, '') // Eliminar < y > para prevenir XSS
@@ -49,7 +49,7 @@ export const sanitizeText = (text) => {
 };
 
 // Función para validar el archivo de imagen
-export const validateImageFile = (file) => {
+const validateImageFile = (file) => {
     const errors = [];
     
     // Validar tipo MIME
@@ -73,7 +73,7 @@ export const validateImageFile = (file) => {
 };
 
 // Función para generar un nombre de archivo seguro
-export const generateSafeFilename = (originalName) => {
+const generateSafeFilename = (originalName) => {
     const timestamp = Date.now();
     const sanitizedName = originalName
         .toLowerCase()
@@ -82,4 +82,11 @@ export const generateSafeFilename = (originalName) => {
         .substring(0, 50); // Limitar longitud
     
     return `${timestamp}-${sanitizedName}`;
+};
+
+module.exports = {
+    participacionSchema,
+    sanitizeText,
+    validateImageFile,
+    generateSafeFilename
 }; 

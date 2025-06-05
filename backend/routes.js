@@ -1,14 +1,21 @@
-import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { sendConfirmationEmail, sendParticipacionToOrganizacion } from './emailService.js';
-import { guardarParticipacion, crearCarpetaUploads } from './utils.js';
-import { participacionSchema, sanitizeText, validateImageFile, generateSafeFilename } from './validators.js';
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const { sendConfirmationEmail, sendParticipacionToOrganizacion } = require('./services/emailService');
+const { guardarParticipacion, crearCarpetaUploads } = require('./utils/fileUtils');
+const { participacionSchema, sanitizeText, validateImageFile, generateSafeFilename } = require('./utils/validators');
+const participacionesRoutes = require('./routes/participaciones');
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+// Ruta de prueba
+router.get('/test', (req, res) => {
+    res.json({
+        success: true,
+        message: 'API funcionando correctamente',
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Configuración de multer para subir fotos
 const storage = multer.diskStorage({
@@ -136,10 +143,7 @@ router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, 
     }
 });
 
-// Importar rutas
-const participacionesRoutes = require('./routes/participaciones');
-
-// Usar rutas
+// Usar rutas de participaciones
 router.use('/participaciones', participacionesRoutes);
 
 module.exports = router; 

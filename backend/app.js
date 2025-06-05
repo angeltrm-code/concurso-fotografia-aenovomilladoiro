@@ -1,12 +1,19 @@
-import express from 'express';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import routes from './routes.js';
-import cors from 'cors';
-import path from 'path';
-import { performBackup, limpiarBackupsAntiguos } from './utils/backup';
+const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
+const path = require('path');
+const routes = require('./routes');
+const { performBackup, limpiarBackupsAntiguos } = require('./utils/backup');
 
 const app = express();
+
+// Configuración de CORS
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Configuración de seguridad básica
 app.use(helmet());
@@ -27,8 +34,28 @@ app.use('/api/participar', limiter);
 // Middleware para parsear JSON
 app.use(express.json());
 
+// Middleware para parsear URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
 // Configurar las rutas
 app.use('/api', routes);
+
+// Middleware para manejar errores 404
+app.use((req, res, next) => {
+    res.status(404).json({
+        success: false,
+        message: 'Ruta no encontrada'
+    });
+});
+
+// Middleware para manejar errores generales
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+    });
+});
 
 // Función para programar el backup
 async function scheduleBackup() {
@@ -55,7 +82,7 @@ async function scheduleBackup() {
 }
 
 // Puerto por defecto
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Iniciar el servidor
 app.listen(PORT, () => {

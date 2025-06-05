@@ -1,17 +1,15 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
 
 // Cargar variables de entorno
 dotenv.config();
 
 // Configuración del transporter
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: true,
+    service: 'gmail',
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -21,9 +19,9 @@ const transporter = nodemailer.createTransport({
  * @param {string} params.to - Email del participante
  * @param {string} params.nombre - Nombre del participante
  */
-export const sendConfirmationEmail = async ({ to, nombre }) => {
+const sendConfirmationEmail = async ({ to, nombre }) => {
     const mailOptions = {
-        from: process.env.SMTP_USER,
+        from: process.env.EMAIL_FROM,
         to,
         subject: 'Confirmación de recepción da túa fotografía',
         html: `
@@ -51,7 +49,7 @@ export const sendConfirmationEmail = async ({ to, nombre }) => {
  * @param {Object} params.datos - Datos del participante
  * @param {string} params.imagePath - Ruta de la imagen adjunta
  */
-export const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
+const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
     const {
         nombre,
         apelidos,
@@ -64,8 +62,8 @@ export const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
     } = datos;
 
     const mailOptions = {
-        from: process.env.SMTP_USER,
-        to: process.env.ORGANIZER_EMAIL,
+        from: process.env.EMAIL_FROM,
+        to: process.env.EMAIL_TO,
         subject: 'Nova participación recibida',
         text: `
             Nova participación recibida no XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro:
@@ -95,4 +93,9 @@ export const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
         console.error('Error ao enviar o correo á organización:', error);
         throw error;
     }
+};
+
+module.exports = {
+    sendConfirmationEmail,
+    sendParticipacionToOrganizacion
 }; 

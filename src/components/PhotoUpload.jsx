@@ -19,6 +19,7 @@ const PhotoUpload = () => {
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [showSummary, setShowSummary] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,8 +32,8 @@ const PhotoUpload = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, imagen: "O arquivo non pode superar os 10MB" }));
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({ ...prev, imagen: "O arquivo non pode superar os 5MB" }));
         return;
       }
       setFormData((prev) => ({ ...prev, imagen: file }));
@@ -76,24 +77,55 @@ const PhotoUpload = () => {
     }
   };
 
-  const handleConfirmSubmit = () => {
-    console.log("Datos enviados:", formData);
-    alert("Formulario enviado con éxito!");
-    setShowSummary(false);
-    setFormData({
-      nombre: "",
-      apellidos: "",
-      email: "",
-      telefono: "",
-      nifnie: "",
-      direccion: "",
-      titulo: "",
-      descripcion: "",
-      imagen: null,
-      autorizacion: null,
-      persoasRecoñecibles: false,
-    });
-    setPreview(null);
+  const handleConfirmSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const formDataToSend = new FormData();
+      formDataToSend.append('nombre', formData.nombre);
+      formDataToSend.append('apelidos', formData.apellidos);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('telefono', formData.telefono);
+      formDataToSend.append('nif', formData.nifnie);
+      formDataToSend.append('enderezo', formData.direccion);
+      formDataToSend.append('titulo', formData.titulo);
+      formDataToSend.append('descripcion', formData.descripcion);
+      formDataToSend.append('foto', formData.imagen);
+      if (formData.autorizacion) {
+        formDataToSend.append('autorizacion', formData.autorizacion);
+      }
+
+      const response = await fetch('/api/participar', {
+        method: 'POST',
+        body: formDataToSend
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao enviar o formulario');
+      }
+
+      alert("Formulario enviado con éxito!");
+      setShowSummary(false);
+      setFormData({
+        nombre: "",
+        apellidos: "",
+        email: "",
+        telefono: "",
+        nifnie: "",
+        direccion: "",
+        titulo: "",
+        descripcion: "",
+        imagen: null,
+        autorizacion: null,
+        persoasRecoñecibles: false,
+      });
+      setPreview(null);
+    } catch (error) {
+      alert(error.message || 'Erro ao enviar o formulario');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Nueva función para eliminar la imagen
@@ -124,8 +156,21 @@ const PhotoUpload = () => {
             )}
           </div>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: 24 }}>
-            <button onClick={() => setShowSummary(false)} className="form-submit-btn" style={{ background: '#e2e8f0', color: '#2C415E' }}>Modificar</button>
-            <button onClick={handleConfirmSubmit} className="form-submit-btn">Confirmar</button>
+            <button 
+              onClick={() => setShowSummary(false)} 
+              className="form-submit-btn" 
+              style={{ background: '#e2e8f0', color: '#2C415E' }}
+              disabled={isSubmitting}
+            >
+              Modificar
+            </button>
+            <button 
+              onClick={handleConfirmSubmit} 
+              className="form-submit-btn"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Enviando...' : 'Confirmar'}
+            </button>
           </div>
         </div>
       </div>
@@ -198,51 +243,29 @@ const PhotoUpload = () => {
           <label className="form-label">Imaxe {OBLIGATORIO}</label>
           <div className="form-file-wrapper">
             <label className="form-file-label">
-              Seleccionar arquivo
               <input
                 type="file"
                 name="imagen"
+                accept="image/jpeg,image/jpg"
                 onChange={handleImageChange}
-                accept="image/*"
                 className="form-file-input"
               />
+              <span className="form-file-text">Seleccionar imaxe</span>
             </label>
-            <span className="form-file-name">
-              {formData.imagen ? formData.imagen.name : "Ningún arquivo seleccionado"}
-            </span>
+            {preview && (
+              <div className="form-preview">
+                <img src={preview} alt="Previsualización" className="form-preview-image" />
+                <button type="button" onClick={handleRemoveImage} className="form-remove-btn">
+                  Eliminar
+                </button>
+              </div>
+            )}
           </div>
           {errors.imagen && <div className="form-error">{errors.imagen}</div>}
-          {preview && (
-            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img src={preview} alt="Previsualización" style={{ maxHeight: 180, borderRadius: 12, margin: '0 auto', boxShadow: '0 2px 8px 0 rgba(44,65,94,0.10)' }} />
-              <button
-                type="button"
-                onClick={handleRemoveImage}
-                style={{
-                  marginTop: 16,
-                  background: '#e53e3e',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '0.6rem 1.5rem',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px 0 rgba(44,65,94,0.10)',
-                  transition: 'background 0.2s',
-                  outline: 'none',
-                  display: 'block',
-                }}
-              >
-                Eliminar imaxe
-              </button>
-            </div>
-          )}
-          <div style={{ color: '#2C415E', fontWeight: 500, marginTop: 10, textAlign: 'center', fontSize: '0.98rem' }}>
-            O nome do arquivo da imaxe debe coincidir co título da fotografía.
-          </div>
         </div>
-        <button type="submit" className="form-submit-btn">Enviar participación</button>
+        <button type="submit" className="form-submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? 'Enviando...' : 'Enviar'}
+        </button>
       </form>
     </div>
   );

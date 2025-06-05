@@ -37,4 +37,13 @@ router.get('/health', async (req, res) => {
     }
 });
 
+// Ruta de health check
+router.get('/', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 module.exports = router; 
