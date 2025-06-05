@@ -1,90 +1,98 @@
-const nodemailer = require('nodemailer');
-const fs = require('fs');
-require('dotenv').config();
-const path = require('path');
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
+// Cargar variables de entorno
+dotenv.config();
+
+// Configuración del transporter
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: Number(process.env.SMTP_PORT) === 465, // true para 465, false para outros
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: true,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
 });
 
-async function enviarParticipacionOrganizador({ nombre, email, titulo, archivoPath, archivoNombre }) {
-  const mailOptions = {
-    from: process.env.EMAIL_ORIGEN,
-    to: process.env.EMAIL_DESTINO,
-    subject: `Nova participación: ${titulo}`,
-    text: `Recibiuse unha nova participación no certame:\n\nNome: ${nombre}\nEmail: ${email}\nTítulo: ${titulo}\n\nA foto vai adxunta.`,
-    attachments: [
-      {
-        filename: archivoNombre,
-        path: archivoPath,
-      },
-    ],
-  };
-  return transporter.sendMail(mailOptions);
-}
+/**
+ * Envía un correo de confirmación al participante
+ * @param {Object} params - Parámetros del correo
+ * @param {string} params.to - Email del participante
+ * @param {string} params.nombre - Nombre del participante
+ */
+export const sendConfirmationEmail = async ({ to, nombre }) => {
+    const mailOptions = {
+        from: process.env.SMTP_USER,
+        to,
+        subject: 'Confirmación de recepción da túa fotografía',
+        html: `
+            Bo día, <strong>${nombre}</strong>!<br><br>
+            Confirmamos que recibimos correctamente a túa participación no XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro.<br><br>
+            Agradecemos moito o teu interese e desexámosche moita sorte no concurso.<br><br>
+            Un saúdo cordial,<br>
+            A organización do certame
+        `
+    };
 
-async function enviarConfirmacionParticipante({ nombre, email, titulo, archivoPath }) {
-  // Rutas absolutas a los logos en /public
-  const logoAENM = path.join(__dirname, 'public', 'LogoAENM.png');
-  const logosInstitucionais = path.join(__dirname, 'public', 'Logos-AENMI-300x75.png');
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Correo de confirmación enviado:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error ao enviar o correo de confirmación:', error);
+        throw error;
+    }
+};
 
-  const html = `
-    <div style="font-family: Montserrat, Arial, sans-serif; background: #f8fafc; padding: 2rem; color: #2C415E;">
-      <div style="max-width: 500px; margin: 0 auto; background: #fff; border-radius: 18px; box-shadow: 0 2px 16px 0 rgba(44,65,94,0.10); padding: 2rem 1.5rem;">
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-          <img src="cid:logoAENM" alt="Logo AE Novo Milladoiro" style="height: 60px; margin-bottom: 1rem;" />
-        </div>
-        <h2 style="text-align: center; font-size: 1.4rem; font-weight: 800; margin-bottom: 1.2rem;">Hola, ${nombre}!</h2>
-        <p style="font-size: 1.08rem; text-align: center; margin-bottom: 1.2rem;">Confirmamos que recibimos correctamente a túa participación no <b>XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro</b>.</p>
-        <div style="background: #f1f5f9; border-radius: 12px; padding: 1rem; margin-bottom: 1.2rem;">
-          <b>Título da fotografía:</b><br />
-          <span style="font-size: 1.1rem; color: #232323;">${titulo}</span>
-        </div>
-        <div style="text-align: center; margin-bottom: 1.2rem;">
-          <img src="cid:fotoParticipante" alt="Previsualización da foto" style="max-width: 100%; max-height: 220px; border-radius: 12px; box-shadow: 0 2px 8px 0 rgba(44,65,94,0.10);" />
-        </div>
-        <p style="font-size: 1.05rem; text-align: center; margin-bottom: 1.5rem;">Moitas grazas por participar e moita sorte!<br />
-        <span style="font-size: 0.98rem; color: #444;">Se tes dúbidas, podes responder a este correo.</span></p>
-        <div style="text-align: center; margin-top: 2rem;">
-          <img src="cid:logosInstitucionais" alt="Logos institucionais" style="height: 48px; margin: 0 auto;" />
-        </div>
-      </div>
-    </div>
-  `;
+/**
+ * Envía un correo a la organización con los datos de la participación
+ * @param {Object} params - Parámetros del correo
+ * @param {Object} params.datos - Datos del participante
+ * @param {string} params.imagePath - Ruta de la imagen adjunta
+ */
+export const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
+    const {
+        nombre,
+        apelidos,
+        nif,
+        enderezo,
+        email,
+        telefono,
+        titulo,
+        descripcion
+    } = datos;
 
-  const mailOptions = {
-    from: process.env.EMAIL_ORIGEN,
-    to: email,
-    subject: 'Confirmación de participación no XI Certame de Fotografía',
-    html,
-    attachments: [
-      {
-        filename: 'foto.jpg',
-        path: archivoPath,
-        cid: 'fotoParticipante',
-      },
-      {
-        filename: 'LogoAENM.png',
-        path: logoAENM,
-        cid: 'logoAENM',
-      },
-      {
-        filename: 'Logos-AENMI-300x75.png',
-        path: logosInstitucionais,
-        cid: 'logosInstitucionais',
-      },
-    ],
-  };
-  return transporter.sendMail(mailOptions);
-}
+    const mailOptions = {
+        from: process.env.SMTP_USER,
+        to: process.env.ORGANIZER_EMAIL,
+        subject: 'Nova participación recibida',
+        text: `
+            Nova participación recibida no XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro:
 
-module.exports = {
-  enviarParticipacionOrganizador,
-  enviarConfirmacionParticipante,
+            Nome: ${nombre}
+            Apelidos: ${apelidos}
+            NIF/NIE: ${nif}
+            Enderezo: ${enderezo}
+            Email: ${email}
+            Teléfono: ${telefono}
+            Título da foto: ${titulo}
+            Descrición: ${descripcion}
+        `,
+        attachments: [
+            {
+                filename: 'foto.jpg',
+                path: imagePath
+            }
+        ]
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Correo á organización enviado:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('Error ao enviar o correo á organización:', error);
+        throw error;
+    }
 }; 
