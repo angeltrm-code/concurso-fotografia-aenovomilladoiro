@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { sendConfirmationEmail, sendParticipacionToOrganizacion } from './emailService.js';
 import { guardarParticipacion, crearCarpetaUploads } from './utils.js';
+import { participacionSchema, sanitizeText, validateImageFile, generateSafeFilename } from './validators.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -16,18 +17,17 @@ const storage = multer.diskStorage({
         cb(null, path.join(__dirname, 'uploads'));
     },
     filename: function (req, file, cb) {
-        // Generar nombre único: timestamp + nombre original
-        const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');
-        cb(null, uniqueName);
+        cb(null, generateSafeFilename(file.originalname));
     }
 });
 
 // Filtro para aceptar solo imágenes jpg/jpeg
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
+    const validation = validateImageFile(file);
+    if (validation.isValid) {
         cb(null, true);
     } else {
-        cb(new Error('Só se aceptan imaxes en formato JPG/JPEG'), false);
+        cb(new Error(validation.errors.join(', ')), false);
     }
 };
 
@@ -39,8 +39,20 @@ const upload = multer({
     }
 });
 
+// Middleware para sanitizar los datos del formulario
+const sanitizeFormData = (req, res, next) => {
+    if (req.body) {
+        Object.keys(req.body).forEach(key => {
+            if (typeof req.body[key] === 'string') {
+                req.body[key] = sanitizeText(req.body[key]);
+            }
+        });
+    }
+    next();
+};
+
 // Ruta para procesar la participación
-router.post('/participar', upload.single('foto'), async (req, res) => {
+router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, res) => {
     try {
         const {
             nombre,
@@ -55,11 +67,21 @@ router.post('/participar', upload.single('foto'), async (req, res) => {
 
         const file = req.file;
 
-        // Validar campos requeridos
-        if (!nombre || !apelidos || !nif || !email || !titulo || !file) {
+        // Validar campos requeridos y formato
+        try {
+            await participacionSchema.parseAsync(req.body);
+        } catch (error) {
             return res.status(400).json({
                 success: false,
-                message: 'Faltan campos obrigatorios ou a imaxe'
+                message: 'Erro de validación: ' + error.errors.map(e => e.message).join(', ')
+            });
+        }
+
+        // Validar archivo
+        if (!file) {
+            return res.status(400).json({
+                success: false,
+                message: 'É obrigatorio enviar unha imaxe'
             });
         }
 
@@ -73,7 +95,8 @@ router.post('/participar', upload.single('foto'), async (req, res) => {
             telefono,
             titulo,
             descripcion,
-            archivo: file.filename
+            archivo: file.filename,
+            ip: req.ip // Guardar IP para auditoría
         };
 
         // Guardar en JSON
@@ -97,6 +120,15 @@ router.post('/participar', upload.single('foto'), async (req, res) => {
 
     } catch (error) {
         console.error('Error ao procesar a participación:', error);
+        
+        // Si es un error de multer, devolver mensaje específico
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({
+                success: false,
+                message: 'A imaxe non pode ser maior de 5MB'
+            });
+        }
+
         res.status(500).json({
             success: false,
             message: 'Erro ao procesar a participación'

@@ -1,22 +1,31 @@
-# XI Certame de Fotografía - Backend Express
+# XI Certame de Fotografía - Backend Moderno (Node.js + Express)
 
-Este backend gestiona las participaciones del XI Certame de Fotografía. Permite recibir datos y fotos de los participantes, guardar los archivos y registrar todas las participaciones.
+Este backend gestiona las participaciones del XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro. Permite recibir datos y fotos de los participantes, guardar los archivos y registrar todas las participaciones, además de enviar correos automáticos de confirmación y notificación.
 
-## 🚀 Instalación
+## 🚀 Instalación y primer uso
 
 1. Clona el repositorio o copia los archivos en tu máquina.
 2. Instala las dependencias:
    ```bash
    npm install
    ```
+3. Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+   ```env
+   SMTP_HOST=aenovomilladoiro-com.correoseguro.dinaserver.com
+   SMTP_PORT=465
+   SMTP_USER=foto@aenovomilladoiro.com
+   SMTP_PASS=AnxoToribio&2025
+   ORGANIZER_EMAIL=foto@aenovomilladoiro.com
+   PORT=3000
+   ```
 
-## ▶️ Cómo arrancar el servidor
+## ▶️ Cómo arrancar el backend
 
 ```bash
-node server.js
+node backend/app.js
 ```
 
-El servidor escuchará por defecto en el puerto 4000 (o el que definas en la variable de entorno `PORT`).
+El servidor escuchará por defecto en el puerto 3000 (o el que definas en la variable de entorno `PORT`).
 
 ## 📤 Endpoint POST `/api/participar`
 
@@ -24,68 +33,69 @@ El servidor escuchará por defecto en el puerto 4000 (o el que definas en la var
 - **Tipo de datos:** `multipart/form-data`
 - **Campos requeridos:**
   - `nombre` (texto)
+  - `apelidos` (texto)
+  - `nif` (texto)
   - `email` (texto)
   - `titulo` (texto)
-  - `foto` (archivo imagen)
+  - `foto` (archivo imagen JPG/JPEG, máx. 5MB)
+- **Campos opcionales:**
+  - `enderezo` (texto)
+  - `telefono` (texto)
+  - `descripcion` (texto)
 - **¿Qué hace?**
-  - Guarda la imagen en la carpeta `/uploads` (se crea automáticamente si no existe), renombrada con la fecha y el nombre original.
-  - Registra los datos de la participación en el archivo `participaciones.json` junto con la fecha de recepción.
-  - Devuelve un mensaje de confirmación al cliente.
+  - Guarda la imagen en la carpeta `/uploads` (se crea automáticamente si no existe), renombrada de forma segura.
+  - Registra los datos de la participación en el archivo `participaciones.json` junto con la fecha y la IP.
+  - Envía un email de confirmación al participante.
+  - Envía un email a la organización con los datos y la foto adjunta.
+  - Devuelve un mensaje de confirmación o error.
 
 ## 📥 Endpoint GET `/api/participaciones`
 
 - **Método:** GET
 - **¿Qué hace?**
   - Devuelve un array con todas las participaciones registradas en `participaciones.json`.
-  - Cada participación incluye: nombre, email, título, nombre del archivo y fecha.
+  - Cada participación incluye: nombre, email, título, nombre del archivo, fecha e IP.
   - Si no hay participaciones, devuelve `[]`.
   - Si ocurre un error de lectura, devuelve error 500.
 
-## 📂 Estructura de archivos generados
+## 📂 Estructura de carpetas y archivos
 
-- `/uploads/` — Carpeta donde se guardan las imágenes subidas.
-- `participaciones.json` — Archivo donde se registran todas las participaciones en formato JSON.
+```
+/backend
+  |-- app.js           # Punto de entrada del backend
+  |-- routes.js        # Rutas principales
+  |-- services/
+      |-- emailService.js
+  |-- utils/
+      |-- utils.js
+      |-- validators.js
+/uploads/              # Carpeta donde se guardan las imágenes subidas
+/participaciones.json   # Archivo donde se registran todas las participaciones
+```
 
-## 🧪 Cómo probarlo
+## 🧪 Cómo probar el sistema
 
 ### Con Postman o similar
-1. Haz una petición POST a `http://localhost:4000/api/participar`.
-2. En el body, selecciona `form-data` y añade los campos:
-   - `nombre`: tu nombre
-   - `email`: tu email
-   - `titulo`: título de la foto
-   - `foto`: selecciona un archivo de imagen
-3. Envía la petición. Deberías recibir `{ "mensaje": "Fotografía recibida con éxito!" }`.
+1. Haz una petición POST a `http://localhost:3000/api/participar`.
+2. En el body, selecciona `form-data` y añade los campos requeridos y la foto.
+3. Envía la petición. Deberías recibir `{ "success": true, "message": "Participación recibida correctamente" }`.
 
 ### Desde el frontend
-- Configura tu formulario para enviar los datos como `multipart/form-data` al endpoint `http://localhost:4000/api/participar`.
-- Puedes consultar todas las participaciones con una petición GET a `http://localhost:4000/api/participaciones`.
+- Configura tu formulario para enviar los datos como `multipart/form-data` al endpoint `http://localhost:3000/api/participar`.
+- Puedes consultar todas las participaciones con una petición GET a `http://localhost:3000/api/participaciones`.
 
-## ✉️ Configuración de envío de emails automáticos
+## 🔐 Seguridad y validaciones
+- Validación estricta de campos con Zod.
+- Sanitización de inputs para evitar XSS.
+- Solo se aceptan imágenes JPG/JPEG de hasta 5MB.
+- Rate limiting: máximo 5 participaciones por IP cada 15 minutos.
+- Headers de seguridad con Helmet.
 
-Este backend pode enviar un correo ao organizador do certame (co arquivo adxunto) e unha confirmación ao participante tras recibir a súa participación.
+## ✉️ Variables de entorno necesarias
 
-1. Instala as dependencias necesarias:
-   ```bash
-   npm install nodemailer dotenv
-   ```
-2. Crea un arquivo `.env` na raíz do proxecto co seguinte contido (exemplo):
-   ```env
-   SMTP_HOST=smtp.tu-servidor.com
-   SMTP_PORT=465
-   SMTP_USER=usuario@dominio.com
-   SMTP_PASS=contrasinal
-   EMAIL_ORIGEN=usuario@dominio.com
-   EMAIL_DESTINO=correooficial@dominio.com
-   ```
-   - **EMAIL_DESTINO**: será o correo oficial do certame (podes cambialo cando o teñas definitivo).
-   - **EMAIL_ORIGEN**: debe ser unha conta válida do servidor SMTP.
-
-3. O sistema enviará:
-   - Un email ao organizador co arquivo da foto adxunto e os datos do participante.
-   - Un email de confirmación ao participante agradecendo a súa participación.
-
-> **Nota:** Se usas Gmail, debes crear unha contrasinal de aplicación e activar o acceso a apps menos seguras.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`: Credenciales SMTP para el envío de correos.
+- `ORGANIZER_EMAIL`: Correo de la organización que recibirá las participaciones.
+- `PORT`: Puerto en el que se ejecuta el backend (opcional, por defecto 3000).
 
 ---
 
