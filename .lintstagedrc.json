@@ -1,0 +1,5 @@
+{
+  "*.{js,jsx,ts,tsx,json,env,env.*}": [
+    "node scripts/check-sensitive-files.js"
+  ]
+} 
