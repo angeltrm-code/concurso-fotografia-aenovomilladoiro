@@ -1,0 +1,122 @@
+.editor-bases-panel {
+    /* Contenedor principal del panel de bases */
+    /* Los estilos de tarjeta principal vienen de .admin-card en AdminDashboard.css */
+    width: 100%;
+    box-sizing: border-box;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.editor-bases-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Espacio entre las tarjetas de sección */
+}
+
+.bases-section-card.admin-card {
+    /* Hereda estilos de .admin-card. Asegurar que no haya padding doble si se aplicó en el padre */
+    padding: 1.5rem; /* Mantener el padding de la tarjeta */
+    margin-bottom: 0; /* Eliminamos el margen inferior si el gap en .editor-bases-sections maneja el espaciado */
+}
+
+.bases-section-title {
+    font-size: 1rem; /* Ajustar tamaño del título de sección */
+    font-weight: 600;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb; /* Separador visual */
+}
+
+.textarea-bases {
+    width: 100%;
+    min-height: 150px; /* Altura mínima solicitada */
+    padding: 0.75rem 1rem; /* Padding interno */
+    border: 1px solid #e5e7eb; /* Borde suave */
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    resize: vertical; /* Permitir redimensionar verticalmente */
+    margin-bottom: 1rem; /* Espacio antes de las acciones */
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #333;
+}
+
+.textarea-bases:focus {
+    outline: none;
+    border-color: #111827; /* Borde al enfocar */
+    box-shadow: 0 0 0 1px #111827; /* Sombra sutil al enfocar */
+}
+
+.bases-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap; /* Asegura que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.btn-gardar {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-gardar:hover {
+    background: #1f2937;
+}
+
+.ultima-modificacion {
+    font-size: 0.875rem;
+    color: #6b7280; /* Color gris para la fecha */
+}
+
+.mensaje-seccion {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.mensaje-seccion.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.mensaje-seccion.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .bases-section-card.admin-card {
+        padding: 1rem;
+    }
+
+    .bases-section-actions {
+        flex-direction: column;
+        align-items: flex-start; /* Alinea los elementos a la izquierda en móvil */
+        gap: 0.75rem;
+    }
+
+    .btn-gardar {
+        width: 100%; /* Botón de guardar ocupa todo el ancho en móvil */
+        text-align: center;
+    }
+
+    .ultima-modificacion,
+    .mensaje-seccion {
+        width: 100%; /* Ocupan todo el ancho */
+        text-align: center;
+    }
+} 

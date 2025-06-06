@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import PhotoUpload from "./components/PhotoUpload";
 import Header from "./components/Header";
 import PhotoCarousel from "./components/PhotoCarousel";
 import BasesCertame from "./components/BasesCertame";
 import Footer from "./components/Footer";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import { isAuthenticated } from "./utils/auth";
 import "./styles/main.css";
+
+// Componente para proteger rutas de administración
+const ProtectedRoute = ({ children }) => {
+    if (!isAuthenticated()) {
+        return <Navigate to="/admin/login" replace />;
+    }
+    return children;
+};
 
 // Componente principal de la aplicación
 // Estructura: Header fijo, contenido principal (carrusel, bases, formulario), Footer independiente
@@ -17,7 +29,8 @@ const images = [
   "/slide6.jpg"
 ];
 
-function App() {
+// Componente para la página principal
+const HomePage = () => {
   const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
@@ -61,6 +74,25 @@ function App() {
       {/* Footer independiente fuera del contenedor principal */}
       <Footer />
     </>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
 

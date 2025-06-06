@@ -1,0 +1,122 @@
+.participantes-panel {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.participantes-panel h2 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.tabla-participantes-container {
+    overflow-x: auto;
+}
+
+.tabla-participantes {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.tabla-participantes th,
+.tabla-participantes td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-participantes th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.tabla-participantes tr:hover {
+    background-color: #f8f9fa;
+}
+
+.participante-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.participante-nombre {
+    font-weight: 500;
+    color: #333;
+}
+
+.participante-nif {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.participante-email {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.participante-email:hover {
+    text-decoration: underline;
+}
+
+.participante-titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.participante-descripcion {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+}
+
+.foto-container {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.foto-miniatura {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.descarga-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.descarga-btn:hover {
+    background-color: #218838;
+}
+
+.participantes-loading,
+.participantes-error,
+.participantes-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.participantes-error {
+    color: #dc3545;
+} 
