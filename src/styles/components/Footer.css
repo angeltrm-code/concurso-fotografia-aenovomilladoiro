@@ -1,0 +1,22 @@
+/* =========================
+   FOOTER
+   ========================= */
+.footer {
+  background-color: #2C415E;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-logo {
+  height: 3rem;
+  width: auto;
+} 

@@ -1,5 +1,5 @@
 import React from "react";
-import "../App.css";
+import "../styles/components/Header.css";
 
 // Componente Header: barra superior fija con logo y navegación principal
 const Header = () => (

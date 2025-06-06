@@ -1,5 +1,6 @@
+import React from "react";
 import { FaUsers, FaCamera, FaFileImage, FaCalendarAlt, FaGavel, FaTrophy, FaMapMarkerAlt, FaEnvelopeOpenText } from "react-icons/fa";
-import "../App.css";
+import "../styles/components/BasesCertame.css";
 
 const bases = [
   {

@@ -1,22 +1,26 @@
-const express = require('express');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const cors = require('cors');
-const path = require('path');
-const routes = require('./routes');
-const { performBackup, limpiarBackupsAntiguos } = require('./utils/backup');
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import multer from 'multer'; // Aunque multer se usa en routes.js, a veces se importa aquí
+import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Simular __dirname y __filename en módulos ES
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+import routes from './routes.js'; // Importar las rutas
+import { performBackup, limpiarBackupsAntiguos } from './utils/backup.js';
 
 const app = express();
 
-// Configuración de CORS
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Configuración de seguridad básica
-app.use(helmet());
+// Configuración de Middlewares
+app.use(helmet()); // Seguridad
+app.use(cors()); // Permitir peticiones desde otros orígenes (ajustar en producción)
+app.use(express.json()); // Para parsear JSON
+app.use(express.urlencoded({ extended: true })); // Para parsear application/x-www-form-urlencoded
+app.use(express.static(path.join(__dirname, 'public'))); // Servir archivos estáticos (si los hay)
 
 // Rate limiting para prevenir flood
 const limiter = rateLimit({
@@ -31,62 +35,33 @@ const limiter = rateLimit({
 // Aplicar rate limiting solo a la ruta de participación
 app.use('/api/participar', limiter);
 
-// Middleware para parsear JSON
-app.use(express.json());
-
-// Middleware para parsear URL-encoded bodies
-app.use(express.urlencoded({ extended: true }));
-
-// Configurar las rutas
-app.use('/api', routes);
+// Usar las rutas definidas
+app.use('/api', routes); // Montar las rutas bajo /api
 
 // Middleware para manejar errores 404
 app.use((req, res, next) => {
     res.status(404).json({
         success: false,
-        message: 'Ruta no encontrada'
+        message: 'Ruta non atopada'
     });
 });
 
-// Middleware para manejar errores generales
+// Manejador de errores general
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({
         success: false,
-        message: 'Error interno del servidor'
+        message: 'Erro interno do servidor',
+        error: err.message
     });
 });
 
-// Función para programar el backup
-async function scheduleBackup() {
-    try {
-        // Limpiar backups antiguos al inicio
-        await limpiarBackupsAntiguos();
-        
-        // Realizar backup inicial
-        const lastBackup = await performBackup();
-        console.log('Backup inicial completado:', lastBackup);
-
-        // Programar backup cada 24 horas
-        setInterval(async () => {
-            try {
-                const backupTimestamp = await performBackup();
-                console.log('Backup programado completado:', backupTimestamp);
-            } catch (error) {
-                console.error('Error en backup programado:', error);
-            }
-        }, 24 * 60 * 60 * 1000); // 24 horas en milisegundos
-    } catch (error) {
-        console.error('Error al iniciar el sistema de backup:', error);
-    }
-}
-
-// Puerto por defecto
-const PORT = process.env.PORT || 5000;
+// Configuración de la copia de seguridad automática (cada 24 horas)
+// setInterval(performBackup, 24 * 60 * 60 * 1000);
+// setInterval(limpiarBackupsAntiguos, 25 * 60 * 60 * 1000);
 
 // Iniciar el servidor
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en puerto ${PORT}`);
-    // Iniciar el sistema de backup
-    scheduleBackup();
+    console.log(`Servidor backend escoitando no porto ${PORT}`);
 }); 

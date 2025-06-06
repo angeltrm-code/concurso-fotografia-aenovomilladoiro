@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../styles/components/PhotoUpload.css";
 
 const OBLIGATORIO = <span style={{ color: '#e53e3e' }}>*</span>;
 
@@ -12,14 +13,15 @@ const PhotoUpload = () => {
     direccion: "",
     titulo: "",
     descripcion: "",
-    imagen: null,
+    foto: null,
     autorizacion: null,
     persoasRecoñecibles: false,
   });
-  const [preview, setPreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [showSummary, setShowSummary] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,17 +35,17 @@ const PhotoUpload = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({ ...prev, imagen: "O arquivo non pode superar os 5MB" }));
+        setErrors((prev) => ({ ...prev, foto: "O arquivo non pode superar os 5MB" }));
         return;
       }
-      setFormData((prev) => ({ ...prev, imagen: file }));
+      setFormData((prev) => ({ ...prev, foto: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreview(reader.result);
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
-      if (errors.imagen) {
-        setErrors((prev) => ({ ...prev, imagen: "" }));
+      if (errors.foto) {
+        setErrors((prev) => ({ ...prev, foto: "" }));
       }
     }
   };
@@ -64,7 +66,7 @@ const PhotoUpload = () => {
     if (!formData.telefono) newErrors.telefono = "O teléfono é obrigatorio";
     if (!formData.titulo) newErrors.titulo = "O título é obrigatorio";
     if (!formData.descripcion) newErrors.descripcion = "A descrición é obrigatoria";
-    if (!formData.imagen) newErrors.imagen = "A imaxe é obrigatoria";
+    if (!formData.foto) newErrors.foto = "A imaxe é obrigatoria";
     if (formData.persoasRecoñecibles && !formData.autorizacion) newErrors.autorizacion = "Debes achegar a autorización";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -89,12 +91,12 @@ const PhotoUpload = () => {
       formDataToSend.append('enderezo', formData.direccion);
       formDataToSend.append('titulo', formData.titulo);
       formDataToSend.append('descripcion', formData.descripcion);
-      formDataToSend.append('foto', formData.imagen);
+      formDataToSend.append('foto', formData.foto);
       if (formData.autorizacion) {
         formDataToSend.append('autorizacion', formData.autorizacion);
       }
 
-      const response = await fetch('/api/participar', {
+      const response = await fetch('http://localhost:3001/api/participar', {
         method: 'POST',
         body: formDataToSend
       });
@@ -116,11 +118,11 @@ const PhotoUpload = () => {
         direccion: "",
         titulo: "",
         descripcion: "",
-        imagen: null,
+        foto: null,
         autorizacion: null,
         persoasRecoñecibles: false,
       });
-      setPreview(null);
+      setImagePreview(null);
     } catch (error) {
       alert(error.message || 'Erro ao enviar o formulario');
     } finally {
@@ -130,9 +132,15 @@ const PhotoUpload = () => {
 
   // Nueva función para eliminar la imagen
   const handleRemoveImage = () => {
-    setFormData((prev) => ({ ...prev, imagen: null }));
-    setPreview(null);
+    setFormData((prev) => ({ ...prev, foto: null }));
+    setImagePreview(null);
   };
+
+  // Función para abrir la modal
+  const openModal = () => setShowModal(true);
+
+  // Función para cerrar la modal
+  const closeModal = () => setShowModal(false);
 
   if (showSummary) {
     return (
@@ -148,10 +156,10 @@ const PhotoUpload = () => {
             <div className="form-group"><b>Enderezo:</b> {formData.direccion}</div>
             <div className="form-group"><b>Título:</b> {formData.titulo}</div>
             <div className="form-group"><b>Descrición:</b> {formData.descripcion}</div>
-            {preview && (
+            {imagePreview && (
               <div className="form-group">
                 <b>Imaxe:</b><br />
-                <img src={preview} alt="Previsualización" style={{ maxHeight: 180, borderRadius: 12, margin: '1rem auto' }} />
+                <img src={imagePreview} alt="Previsualización" style={{ maxHeight: 180, borderRadius: 12, margin: '1rem auto' }} />
               </div>
             )}
           </div>
@@ -245,28 +253,38 @@ const PhotoUpload = () => {
             <label className="form-file-label">
               <input
                 type="file"
-                name="imagen"
+                name="foto"
                 accept="image/jpeg,image/jpg"
                 onChange={handleImageChange}
                 className="form-file-input"
               />
               <span className="form-file-text">Seleccionar imaxe</span>
             </label>
-            {preview && (
-              <div className="form-preview">
-                <img src={preview} alt="Previsualización" className="form-preview-image" />
-                <button type="button" onClick={handleRemoveImage} className="form-remove-btn">
-                  Eliminar
-                </button>
+            {imagePreview && (
+              <div className="form-group">
+                <label className="form-label">Imaxe seleccionada:</label>
+                <div className="image-preview-thumbnail" onClick={openModal}>
+                  <img src={imagePreview} alt="Previsualización" className="thumbnail-image" />
+                  <div className="remove-image-btn" onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}>X</div>
+                </div>
+                {errors.foto && <div className="form-error">{errors.foto}</div>}
               </div>
             )}
           </div>
-          {errors.imagen && <div className="form-error">{errors.imagen}</div>}
         </div>
         <button type="submit" className="form-submit-btn" disabled={isSubmitting}>
           {isSubmitting ? 'Enviando...' : 'Enviar'}
         </button>
       </form>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <span className="close-button" onClick={closeModal}>&times;</span>
+            <img src={imagePreview} alt="Previsualización" className="modal-image" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

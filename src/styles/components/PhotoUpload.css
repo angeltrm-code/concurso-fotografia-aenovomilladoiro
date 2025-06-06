@@ -1,0 +1,243 @@
+/* =========================
+   FORMULARIO DE PARTICIPACIÓN
+   ========================= */
+.form-section-wrapper {
+  position: relative;
+}
+
+.form-section-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem 1rem;
+}
+
+.form-section-content {
+  position: relative;
+  margin-bottom: 4rem;
+}
+
+.form-section-background {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(44, 65, 94, 0.1), rgba(44, 65, 94, 0.05));
+  border-radius: 1.5rem;
+}
+
+.form-section-inner {
+  position: relative;
+}
+
+.form-section-max-width {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.form-section {
+  max-width: 750px;
+  margin: 0 auto 3rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px 0 rgba(44,65,94,0.10), 0 1.5px 6px 0 rgba(44,65,94,0.08);
+  padding: 2.5rem 2rem 2rem 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.form-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #2C415E;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 1.3rem;
+  text-align: left;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #2C415E;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid #d1d5db;
+  background: rgba(255,255,255,0.85);
+  font-size: 1rem;
+  color: #232323;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border: 1.5px solid #2C415E;
+}
+
+.form-error {
+  color: #e53e3e;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+}
+
+.form-submit-btn {
+  background: #2C415E;
+  color: #fff;
+  padding: 0.9rem 2.5rem;
+  border-radius: 9999px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px 0 rgba(44,65,94,0.10);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 1.5rem;
+}
+
+.form-submit-btn:hover {
+  background: #1e2d3f;
+  box-shadow: 0 4px 16px 0 rgba(44,65,94,0.18);
+}
+
+.form-file-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.2rem;
+}
+
+.form-file-input {
+  display: none;
+}
+
+.form-file-label {
+  background: #f3f4f6;
+  color: #2C415E;
+  padding: 0.7rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-block;
+  border: 1.5px solid #d1d5db;
+}
+
+.form-file-label:hover {
+  background: #e5e7eb;
+}
+
+.form-file-name {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  word-break: break-all;
+}
+
+/* Estilos para la previsualización de la imagen */
+.image-preview-thumbnail {
+  position: relative;
+  width: 150px; /* Ajusta el tamaño de la miniatura según necesites */
+  height: 100px; /* Ajusta el tamaño de la miniatura según necesites */
+  overflow: hidden;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  border: 1px solid #d1d5db;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumbnail-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover; /* Para asegurar que la imagen cubra el área sin distorsionarse */
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Estilos para la ventana modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  box-shadow: 0 4px 24px 0 rgba(44,65,94,0.10);
+}
+
+.modal-image {
+  display: block;
+  max-width: 100%;
+  max-height: 80vh; /* Limita la altura de la imagen en la modal */
+  margin: 0 auto;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2C415E;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #e53e3e;
+} 

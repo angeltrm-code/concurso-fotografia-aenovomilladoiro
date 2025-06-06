@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import PhotoCarousel from "./components/PhotoCarousel";
 import BasesCertame from "./components/BasesCertame";
 import Footer from "./components/Footer";
+import "./styles/main.css";
 
 // Componente principal de la aplicación
 // Estructura: Header fijo, contenido principal (carrusel, bases, formulario), Footer independiente
@@ -30,11 +31,11 @@ function App() {
   return (
     <>
       {/* Contenedor principal: fondo degradado y fuente personalizada */}
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 font-montserrat">
+      <div className="app-container">
         {/* Header fijo en la parte superior */}
         <Header />
         {/* Contenido principal */}
-        <main className="flex-1 pt-32 md:pt-36">
+        <main className="main-content">
           {/* Carrusel de fotos */}
           <section className="carousel-section">
             <PhotoCarousel />
@@ -42,13 +43,13 @@ function App() {
           {/* Sección de bases del certamen */}
           <BasesCertame />
           {/* Formulario de participación */}
-          <div className="relative">
-            <div className="max-w-7xl mx-auto px-4 py-16">
+          <div className="form-section-wrapper">
+            <div className="form-section-container">
               {/* Descripción y formulario */}
-              <section className="relative mb-16">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#2c415e]/10 to-[#2c415e]/5 rounded-3xl transform -skew-y-2"></div>
-                <div className="relative">
-                  <div className="max-w-xl mx-auto">
+              <section className="form-section-content">
+                <div className="form-section-background"></div>
+                <div className="form-section-inner">
+                  <div className="form-section-max-width">
                     <PhotoUpload />
                   </div>
                 </div>

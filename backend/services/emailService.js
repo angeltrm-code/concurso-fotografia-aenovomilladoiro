@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -95,7 +95,7 @@ const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
     }
 };
 
-module.exports = {
+export {
     sendConfirmationEmail,
     sendParticipacionToOrganizacion
 }; 

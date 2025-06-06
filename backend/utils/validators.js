@@ -1,4 +1,4 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 // Esquema de validación para los datos del formulario
 const participacionSchema = z.object({
@@ -84,7 +84,7 @@ const generateSafeFilename = (originalName) => {
     return `${timestamp}-${sanitizedName}`;
 };
 
-module.exports = {
+export {
     participacionSchema,
     sanitizeText,
     validateImageFile,

@@ -1,10 +1,14 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const { sendConfirmationEmail, sendParticipacionToOrganizacion } = require('./services/emailService');
-const { guardarParticipacion, crearCarpetaUploads } = require('./utils/fileUtils');
-const { participacionSchema, sanitizeText, validateImageFile, generateSafeFilename } = require('./utils/validators');
-const participacionesRoutes = require('./routes/participaciones');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import { sendConfirmationEmail, sendParticipacionToOrganizacion } from './services/emailService.js';
+import { guardarParticipacion, crearCarpetaUploads } from './utils/fileUtils.js';
+import { participacionSchema, sanitizeText, validateImageFile, generateSafeFilename } from './utils/validators.js';
+import participacionesRoutes from './routes/participaciones.js';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -61,6 +65,7 @@ const sanitizeFormData = (req, res, next) => {
 // Ruta para procesar la participación
 router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, res) => {
     try {
+        console.error('[/api/participar] Inicio del manejador de ruta');
         const {
             nombre,
             apelidos,
@@ -75,9 +80,11 @@ router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, 
         const file = req.file;
 
         // Validar campos requeridos y formato
+        console.error('[/api/participar] Antes de validación con Zod');
         try {
             await participacionSchema.parseAsync(req.body);
         } catch (error) {
+            console.error('[/api/participar] Error de validación con Zod:', error);
             return res.status(400).json({
                 success: false,
                 message: 'Erro de validación: ' + error.errors.map(e => e.message).join(', ')
@@ -107,26 +114,30 @@ router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, 
         };
 
         // Guardar en JSON
+        console.error('[/api/participar] Antes de guardar participación');
         await guardarParticipacion(participacion);
 
         // Enviar emails
+        console.error('[/api/participar] Antes de enviar email de confirmación');
         await sendConfirmationEmail({
             to: email,
             nombre
         });
 
+        console.error('[/api/participar] Antes de enviar email a la organización');
         await sendParticipacionToOrganizacion({
             datos: participacion,
             imagePath: file.path
         });
 
+        console.error('[/api/participar] Antes de enviar respuesta exitosa');
         res.status(200).json({
             success: true,
             message: 'Participación recibida correctamente'
         });
 
     } catch (error) {
-        console.error('Error ao procesar a participación:', error);
+        console.error('[/api/participar] Error general en el catch:', error);
         
         // Si es un error de multer, devolver mensaje específico
         if (error.code === 'LIMIT_FILE_SIZE') {
@@ -146,4 +157,4 @@ router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, 
 // Usar rutas de participaciones
 router.use('/participaciones', participacionesRoutes);
 
-module.exports = router; 
+export default router; 

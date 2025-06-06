@@ -1,0 +1,35 @@
+/* =========================
+   RESET GLOBAL Y ROOT
+   ========================= */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#root {
+  text-align: center;
+}
+
+/* =========================
+   CONTENEDOR PRINCIPAL
+   ========================= */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+  color: #111827;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 8rem;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding-top: 9rem;
+  }
+} 

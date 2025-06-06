@@ -1,5 +1,5 @@
 import React from "react";
-import "../App.css";
+import "../styles/components/Footer.css";
 
 // Componente Footer: pie de página independiente con fondo azul y logos institucionales centrados
 const Footer = () => (
