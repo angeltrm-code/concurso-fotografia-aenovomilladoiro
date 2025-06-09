@@ -5,12 +5,18 @@ import { sendConfirmationEmail, sendParticipacionToOrganizacion } from './servic
 import { guardarParticipacion, crearCarpetaUploads } from './utils/fileUtils.js';
 import { participacionSchema, sanitizeText, validateImageFile, generateSafeFilename } from './utils/validators.js';
 import participacionesRoutes from './routes/participaciones.js';
+import carruselRoutes from './routes/carrusel.js';
+import basesRoutes from './routes/bases.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+
+// Montar rutas del carrusel y bases
+router.use('/carrusel', carruselRoutes);
+router.use('/bases', basesRoutes);
 
 // Ruta de prueba
 router.get('/test', (req, res) => {

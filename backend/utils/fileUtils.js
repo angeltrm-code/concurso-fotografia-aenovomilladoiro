@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 // Crea la carpeta uploads si no existe
 async function crearCarpetaUploads() {
-  const uploadsPath = path.join(__dirname, 'uploads');
+  const uploadsPath = path.join(__dirname, '..', 'uploads');
   try {
     await fsPromises.mkdir(uploadsPath, { recursive: true });
   } catch (err) {
@@ -18,7 +18,7 @@ async function crearCarpetaUploads() {
 
 // Guarda una participación en participaciones.json
 async function guardarParticipacion(datos) {
-  const dataDir = path.join(__dirname, '../../data');
+  const dataDir = path.join(__dirname, '..', 'data');
   const filePath = path.join(dataDir, 'participaciones.json');
   try {
     await fsPromises.mkdir(dataDir, { recursive: true });

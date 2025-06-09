@@ -4,9 +4,11 @@ import dotenv from 'dotenv';
 // Cargar variables de entorno
 dotenv.config();
 
-// Configuración del transporter
+// Configuración del transporter para Dinahosting
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT, 10),
+    secure: process.env.EMAIL_SECURE === 'true', // true si usas puerto 465
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -35,10 +37,10 @@ const sendConfirmationEmail = async ({ to, nombre }) => {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('Correo de confirmación enviado:', info.messageId);
+        console.log('📤 Correo de confirmación enviado:', info.messageId);
         return info;
     } catch (error) {
-        console.error('Error ao enviar o correo de confirmación:', error);
+        console.error('❌ Error ao enviar o correo de confirmación:', error);
         throw error;
     }
 };
@@ -66,16 +68,16 @@ const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
         to: process.env.EMAIL_TO,
         subject: 'Nova participación recibida',
         text: `
-            Nova participación recibida no XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro:
+Nova participación recibida no XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro:
 
-            Nome: ${nombre}
-            Apelidos: ${apelidos}
-            NIF/NIE: ${nif}
-            Enderezo: ${enderezo}
-            Email: ${email}
-            Teléfono: ${telefono}
-            Título da foto: ${titulo}
-            Descrición: ${descripcion}
+Nome: ${nombre}
+Apelidos: ${apelidos}
+NIF/NIE: ${nif}
+Enderezo: ${enderezo}
+Email: ${email}
+Teléfono: ${telefono}
+Título da foto: ${titulo}
+Descrición: ${descripcion}
         `,
         attachments: [
             {
@@ -87,10 +89,10 @@ const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('Correo á organización enviado:', info.messageId);
+        console.log('📤 Correo á organización enviado:', info.messageId);
         return info;
     } catch (error) {
-        console.error('Error ao enviar o correo á organización:', error);
+        console.error('❌ Error ao enviar o correo á organización:', error);
         throw error;
     }
 };
@@ -98,4 +100,4 @@ const sendParticipacionToOrganizacion = async ({ datos, imagePath }) => {
 export {
     sendConfirmationEmail,
     sendParticipacionToOrganizacion
-}; 
+};

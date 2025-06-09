@@ -1,31 +1,55 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import multer from 'multer'; // Aunque multer se usa en routes.js, a veces se importa aquí
+import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import routes from './routes.js';
+import { performBackup, limpiarBackupsAntiguos } from './utils/backup.js';
+import initializeDirectories from './utils/initDirectories.js';
+import { crearCarpetaUploads } from './utils/fileUtils.js';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno
+dotenv.config();
 
 // Simular __dirname y __filename en módulos ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import routes from './routes.js'; // Importar las rutas
-import { performBackup, limpiarBackupsAntiguos } from './utils/backup.js';
+// Inicializar directorios necesarios
+initializeDirectories();
+crearCarpetaUploads().catch(console.error);
 
 const app = express();
 
 // Configuración de Middlewares
-app.use(helmet()); // Seguridad
-app.use(cors()); // Permitir peticiones desde otros orígenes (ajustar en producción)
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+})); // Seguridad
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+})); // Permitir peticiones desde otros orígenes
 app.use(express.json()); // Para parsear JSON
 app.use(express.urlencoded({ extended: true })); // Para parsear application/x-www-form-urlencoded
+
+// Middleware de logging
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
+
+app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR || 'uploads')));
+app.use('/carrusel', express.static(path.join(__dirname, process.env.CARRUSEL_DIR || 'uploads/carrusel')));
 app.use(express.static(path.join(__dirname, 'public'))); // Servir archivos estáticos (si los hay)
 
 // Rate limiting para prevenir flood
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // 5 intentos por IP
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos por defecto
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 5, // 5 intentos por IP por defecto
     message: {
         success: false,
         message: 'Demasiados intentos. Por favor, espera 15 minutos.'
@@ -40,6 +64,7 @@ app.use('/api', routes); // Montar las rutas bajo /api
 
 // Middleware para manejar errores 404
 app.use((req, res, next) => {
+    console.log(`404 - Ruta no encontrada: ${req.method} ${req.url}`);
     res.status(404).json({
         success: false,
         message: 'Ruta non atopada'
@@ -48,20 +73,39 @@ app.use((req, res, next) => {
 
 // Manejador de errores general
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('Error en el servidor:', err);
     res.status(500).json({
         success: false,
         message: 'Erro interno do servidor',
-        error: err.message
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Erro interno'
     });
 });
 
-// Configuración de la copia de seguridad automática (cada 24 horas)
-// setInterval(performBackup, 24 * 60 * 60 * 1000);
-// setInterval(limpiarBackupsAntiguos, 25 * 60 * 60 * 1000);
+// Configuración de la copia de seguridad automática
+if (process.env.NODE_ENV === 'production') {
+    setInterval(performBackup, parseInt(process.env.BACKUP_INTERVAL) || 24 * 60 * 60 * 1000);
+    setInterval(limpiarBackupsAntiguos, (parseInt(process.env.BACKUP_INTERVAL) || 24 * 60 * 60 * 1000) + 60 * 60 * 1000);
+}
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 8080;
+const server = app.listen(PORT, '127.0.0.1', () => {
     console.log(`Servidor backend escoitando no porto ${PORT}`);
-}); 
+    console.log(`URLs disponibles:`);
+    console.log(`- API: http://localhost:${PORT}/api`);
+    console.log(`- Carrusel: http://localhost:${PORT}/api/carrusel`);
+    console.log(`- Bases: http://localhost:${PORT}/api/bases`);
+});
+
+// Manejar errores del servidor
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`El puerto ${PORT} ya está en uso. Por favor, usa otro puerto.`);
+        process.exit(1);
+    } else {
+        console.error('Error al iniciar el servidor:', error);
+        process.exit(1);
+    }
+});
+
+export default app;
