@@ -44,12 +44,13 @@ app.use((req, res, next) => {
 
 app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR || 'uploads')));
 app.use('/carrusel', express.static(path.join(__dirname, process.env.CARRUSEL_DIR || 'uploads/carrusel')));
-app.use(express.static(path.join(__dirname, 'public'))); // Servir archivos estáticos (si los hay)
+app.use('/data', express.static(path.join(__dirname, 'data')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Rate limiting para prevenir flood
 const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos por defecto
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 5, // 5 intentos por IP por defecto
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // 100 intentos por ventana
     message: {
         success: false,
         message: 'Demasiados intentos. Por favor, espera 15 minutos.'

@@ -7,16 +7,27 @@ const AdminLogin = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Credenciales hardcodeadas
-        if (username === 'salome' && password === 'aenovomilladoiro2024') {
-            localStorage.setItem('adminLoggedIn', 'true');
+        setError('');
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error de autenticación');
+            localStorage.setItem('adminToken', data.token);
             navigate('/admin');
-        } else {
-            setError('Credenciales incorrectas');
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -24,7 +35,7 @@ const AdminLogin = () => {
         <div className="login-container">
             <div className="login-card">
                 <h1 className="login-title">Acceso Administración</h1>
-                <form onSubmit={handleSubmit} className="login-form">
+                <form onSubmit={handleSubmit} className="login-form" autoComplete="off">
                     <div className="form-group">
                         <input
                             type="text"
@@ -33,9 +44,11 @@ const AdminLogin = () => {
                             placeholder="Usuario"
                             className="form-input"
                             required
+                            autoComplete="username"
+                            disabled={isLoading}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group password">
                         <input
                             type={showPassword ? "text" : "password"}
                             value={password}
@@ -43,18 +56,22 @@ const AdminLogin = () => {
                             placeholder="Contraseña"
                             className="form-input"
                             required
+                            autoComplete="current-password"
+                            disabled={isLoading}
                         />
                         <button
                             type="button"
                             className="password-toggle"
                             onClick={() => setShowPassword(!showPassword)}
+                            tabIndex={-1}
+                            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                         >
                             {showPassword ? "👁️" : "👁️‍🗨️"}
                         </button>
                     </div>
                     {error && <div className="error-message">{error}</div>}
-                    <button type="submit" className="btn-login">
-                        Iniciar Sesión
+                    <button type="submit" className="btn-login" disabled={isLoading}>
+                        {isLoading ? 'Accediendo...' : 'Iniciar Sesión'}
                     </button>
                 </form>
             </div>

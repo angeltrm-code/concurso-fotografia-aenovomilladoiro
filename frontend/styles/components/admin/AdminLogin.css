@@ -33,21 +33,43 @@
 
 .form-group {
     position: relative;
+    overflow: hidden;
 }
 
 .form-input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     font-family: 'Montserrat', sans-serif;
     font-size: 1rem;
     transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
 .form-input:focus {
     outline: none;
     border-color: #111827;
+    box-sizing: border-box;
+}
+.form-group.password {
+    position: relative;
+}
+
+.form-group.password .form-input {
+    padding-right: 3rem; /* Espacio para el botón */
+}
+
+.form-group.password .password-toggle {
+    width: 2rem;
+    height: 2rem;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .password-toggle {

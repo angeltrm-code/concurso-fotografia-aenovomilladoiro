@@ -45,4 +45,8 @@ export const logout = () => {
 // Función para obtener el nombre de usuario actual
 export const getUsername = () => {
     return localStorage.getItem('username');
+};
+
+export const getToken = () => {
+    return localStorage.getItem('adminToken');
 }; 

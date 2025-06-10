@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getToken } from '../../utils/auth';
 import '../../styles/components/admin/EditorBasesPanel.css';
 
 const API_URL = 'http://localhost:5000/api/bases'; // Nueva URL del API para las bases
@@ -8,15 +10,31 @@ const EditorBasesPanel = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+    const navigate = useNavigate();
+
+    const fetchWithAuth = async (url, options = {}) => {
+        const token = getToken();
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('adminToken');
+            navigate('/admin/login');
+            throw new Error('No autorizado');
+        }
+        return res;
+    };
 
     useEffect(() => {
         const fetchBases = async () => {
+            setLoading(true);
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error('Error al cargar las bases.');
-                }
-                const data = await response.json();
+                const res = await fetchWithAuth(API_URL);
+                const data = await res.json();
                 setBasesContent(data.content);
             } catch (err) {
                 console.error('Error al obtener las bases:', err);
@@ -27,7 +45,7 @@ const EditorBasesPanel = () => {
         };
 
         fetchBases();
-    }, []);
+    }, [navigate]);
 
     const handleChange = (e) => {
         setBasesContent(e.target.value);
@@ -38,15 +56,13 @@ const EditorBasesPanel = () => {
         setError(null);
 
         try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ content: basesContent }),
+            const res = await fetchWithAuth(API_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: basesContent })
             });
 
-            if (!response.ok) {
+            if (!res.ok) {
                 throw new Error('Error al guardar las bases.');
             }
 

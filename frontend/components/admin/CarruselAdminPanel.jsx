@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getToken } from '../../utils/auth';
 import '../../styles/components/CarruselAdminPanel.css';
 
 const API_URL = 'http://localhost:5000/api/carrusel';
@@ -11,23 +13,38 @@ const CarruselAdminPanel = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
+    const navigate = useNavigate();
+
+    const fetchWithAuth = async (url, options = {}) => {
+        const token = getToken();
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('adminToken');
+            navigate('/admin/login');
+            throw new Error('No autorizado');
+        }
+        return res;
+    };
 
     useEffect(() => {
         cargarImagenes();
-    }, []);
+    }, [navigate]);
 
     const cargarImagenes = async () => {
+        setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/imagenes`);
-            if (!response.ok) {
-                throw new Error('Error al cargar las imágenes');
-            }
-            const data = await response.json();
+            const res = await fetchWithAuth('/api/carrusel/imagenes');
+            const data = await res.json();
             setImages(data);
-            setLoading(false);
         } catch (err) {
-            console.error('Error:', err);
-            setError('Error al cargar las imágenes');
+            setError(err.message);
+        } finally {
             setLoading(false);
         }
     };
@@ -87,16 +104,16 @@ const CarruselAdminPanel = () => {
         formData.append('imagen', selectedFile);
 
         try {
-            const response = await fetch(`${API_URL}/subir`, {
+            const res = await fetchWithAuth('/api/carrusel/subir', {
                 method: 'POST',
                 body: formData,
             });
 
-            if (!response.ok) {
+            if (!res.ok) {
                 throw new Error('Error al subir la imagen');
             }
 
-            const data = await response.json();
+            const data = await res.json();
             setSuccess('Imagen subida correctamente');
             setSelectedFile(null);
             setPreviewUrl(null);
@@ -113,11 +130,11 @@ const CarruselAdminPanel = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/eliminar/${nombre}`, {
+            const res = await fetchWithAuth(`/api/carrusel/eliminar/${nombre}`, {
                 method: 'DELETE',
             });
 
-            if (!response.ok) {
+            if (!res.ok) {
                 throw new Error('Error al eliminar la imagen');
             }
 

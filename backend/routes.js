@@ -8,6 +8,9 @@ import participacionesRoutes from './routes/participaciones.js';
 import carruselRoutes from './routes/carrusel.js';
 import basesRoutes from './routes/bases.js';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import adminRoutes from './routes/admin.js';
+import { verifyToken } from './authMiddleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,8 +18,8 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 // Montar rutas del carrusel y bases
-router.use('/carrusel', carruselRoutes);
-router.use('/bases', basesRoutes);
+router.use('/carrusel', verifyToken, carruselRoutes);
+router.use('/bases', verifyToken, basesRoutes);
 
 // Ruta de prueba
 router.get('/test', (req, res) => {
@@ -162,5 +165,55 @@ router.post('/participar', upload.single('foto'), sanitizeFormData, async (req, 
 
 // Usar rutas de participaciones
 router.use('/participaciones', participacionesRoutes);
+
+// Configuración de Multer para el carrusel
+const carruselStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'data/carrusel/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const carruselUpload = multer({ 
+  storage: carruselStorage,
+  fileFilter: function (req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error('Solo se permiten imágenes JPG, JPEG y PNG'));
+    }
+    cb(null, true);
+  }
+});
+
+// Rutas del carrusel
+router.get('/api/carrusel', (req, res) => {
+  const carruselDir = path.join(__dirname, 'data/carrusel');
+  fs.readdir(carruselDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error al leer el directorio del carrusel' });
+    }
+    const images = files.filter(file => /\.(jpg|jpeg|png)$/i.test(file));
+    res.json(images);
+  });
+});
+
+router.post('/api/carrusel', carruselUpload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No se ha subido ninguna imagen' });
+  }
+  res.json({ 
+    message: 'Imagen subida correctamente',
+    filename: req.file.filename
+  });
+});
+
+// Endpoint para descargar el PDF de las bases
+router.get('/api/bases/pdf', (req, res) => {
+  const pdfPath = path.join(__dirname, 'public/bases.pdf');
+  res.download(pdfPath, 'bases-concurso.pdf');
+});
+
+router.use('/admin', adminRoutes);
 
 export default router; 

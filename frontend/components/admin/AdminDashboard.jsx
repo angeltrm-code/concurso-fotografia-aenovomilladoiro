@@ -2,33 +2,48 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CarruselAdminPanel from './CarruselAdminPanel';
 import EditorBasesPanel from './EditorBasesPanel';
+import { getToken } from '../../utils/auth';
 import '../../styles/components/admin/AdminDashboard.css';
 
 const AdminDashboard = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [participantsError, setParticipantsError] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkLogin = () => {
-            const loggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-            if (!loggedIn) {
+        const checkToken = async () => {
+            const token = getToken();
+            if (!token) {
                 navigate('/admin/login');
-            } else {
+                return;
+            }
+            try {
+                // Validar token haciendo una petición protegida
+                const res = await fetch('/api/bases', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('adminToken');
+                    navigate('/admin/login');
+                    return;
+                }
                 setIsLoggedIn(true);
-                setTimeout(() => {
-                   setParticipantsError('Error simulado al cargar participantes');
-                }, 1500);
+            } catch (err) {
+                navigate('/admin/login');
+            } finally {
+                setLoading(false);
             }
         };
-        checkLogin();
+        checkToken();
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('adminLoggedIn');
+        localStorage.removeItem('adminToken');
         navigate('/admin/login');
     };
 
+    if (loading) return <div className="admin-dashboard-loading">Cargando panel de administración...</div>;
     if (!isLoggedIn) return null;
 
     return (

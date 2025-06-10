@@ -5,7 +5,7 @@ import Header from "./components/Header";
 import PhotoCarousel from "./components/PhotoCarousel";
 import BasesCertame from "./components/BasesCertame";
 import Footer from "./components/Footer";
-import AdminLogin from "./pages/AdminLogin";
+import AdminLogin from "./components/admin/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import { isAuthenticated } from "./utils/auth";
 import "./styles/main.css";
