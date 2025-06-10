@@ -73,6 +73,8 @@
   font-size: 1rem;
   color: #232323;
   opacity: 0.85;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .bases-btn-container {

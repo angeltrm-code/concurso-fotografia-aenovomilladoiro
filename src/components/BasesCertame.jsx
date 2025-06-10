@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaUsers, FaCamera, FaFileImage, FaCalendarAlt, FaGavel, FaTrophy, FaMapMarkerAlt, FaEnvelopeOpenText } from "react-icons/fa";
 import "../styles/components/BasesCertame.css";
 
+const API_URL = 'http://localhost:5000/api/bases';
+
 // Texto por defecto si no hay contenido en localStorage
 const BASES_DEFAULT = `BASES DO CERTAME FOTOGRÁFICO 2025
 
@@ -47,29 +49,60 @@ const iconos = [
 
 export default function BasesCertame() {
   const [basesContenido, setBasesContenido] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Obtener contenido de localStorage o usar el texto por defecto
-    const contenidoGuardado = localStorage.getItem('basesCertame') || BASES_DEFAULT;
-    
-    // Dividir el contenido en secciones
-    const secciones = contenidoGuardado.split('\n\n').filter(seccion => seccion.trim());
-    
-    // Procesar cada sección
-    const basesProcesadas = secciones.map((seccion, index) => {
-      const lineas = seccion.split('\n');
-      const titulo = lineas[0].trim();
-      const descripcion = lineas.slice(1).map(line => line.trim()).join('\n');
-      
-      return {
-        icono: iconos[index % iconos.length],
-        titulo: titulo.replace(/^\d+\.\s*/, ''), // Eliminar números al inicio
-        descripcion: descripcion
-      };
-    });
+    const fetchBases = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error('Error al cargar las bases.');
+        }
+        const data = await response.json();
+        
+        // Procesar el contenido completo de las bases recibido del backend
+        const secciones = data.content.split('\n\n').filter(seccion => seccion.trim());
+        
+        const basesProcesadas = secciones.map((seccion, index) => {
+          const lineas = seccion.split('\n');
+          const titulo = lineas[0].trim();
+          const descripcion = lineas.slice(1).map(line => line.trim()).join('\n');
+          
+          return {
+            icono: iconos[index % iconos.length],
+            titulo: titulo.replace(/^\d+\.\s*/, ''),
+            descripcion: descripcion
+          };
+        });
 
-    setBasesContenido(basesProcesadas);
+        setBasesContenido(basesProcesadas);
+      } catch (err) {
+        console.error('Error al obtener las bases:', err);
+        setError('No se pudieron cargar las bases.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBases();
   }, []);
+
+  if (loading) {
+    return (
+      <section className="bases-section">
+        <p>Cargando bases del certame...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bases-section">
+        <p className="error-message">Error: {error}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="bases-section">

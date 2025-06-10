@@ -41,6 +41,7 @@
 
 .admin-section {
     width: 100%;
+    margin-bottom: 2rem;
 }
 
 .admin-subtitle {
@@ -182,7 +183,6 @@
 @media (max-width: 768px) {
     .admin-dashboard {
         padding: 1rem;
-        gap: 1.5rem;
     }
 
     .admin-header {
@@ -212,7 +212,6 @@
 @media (max-width: 480px) {
     .admin-dashboard {
         padding: 0.5rem;
-        gap: 1rem;
     }
 
     .admin-card {

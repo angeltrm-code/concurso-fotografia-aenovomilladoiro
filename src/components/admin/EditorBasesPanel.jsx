@@ -1,115 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/components/admin/EditorBasesPanel.css';
 
-// Definición de las secciones de las bases y sus claves en localStorage
-const BASES_SECTIONS = [
-    { key: 'bases.participantes', title: '1. PARTICIPANTES' },
-    { key: 'bases.tema', title: '2. TEMA' },
-    { key: 'bases.formato', title: '3. FORMATO' },
-    { key: 'bases.plazo', title: '4. PLAZO' },
-    { key: 'bases.premios', title: '5. PREMIOS' },
-    { key: 'bases.jurado', title: '6. JURADO' },
-    { key: 'bases.exposicion', title: '7. EXPOSICIÓN' },
-];
-
-// Texto por defecto para cada sección si no hay nada guardado
-const BASES_DEFAULT_CONTENT = {
-    'bases.participantes': `- Podrán participar todas las personas mayores de 18 años.\n- Cada participante podrá presentar un máximo de 2 fotografías.`, // Usar \n para saltos de línea en el string
-    'bases.tema': `- El tema será libre.\n- Las fotografías deberán ser inéditas y no haber sido premiadas en otros concursos.`,
-    'bases.formato': `- Las fotografías se presentarán en formato digital.\n- Resolución mínima: 3000x2000 píxeles.\n- Formato: JPG o PNG.`,
-    'bases.plazo': `- El plazo de presentación finalizará el 30 de abril de 2025.`,
-    'bases.premios': `- Primer premio: 300€\n- Segundo premio: 200€\n- Tercer premio: 100€`,
-    'bases.jurado': `- El jurado estará compuesto por profesionales de la fotografía.\n- Su decisión será inapelable.`,
-    'bases.exposicion': `- Las fotografías premiadas serán expuestas en la sede de la asociación.\n- Se publicarán en la web y redes sociales.`,
-};
+const API_URL = 'http://localhost:5000/api/bases'; // Nueva URL del API para las bases
 
 const EditorBasesPanel = () => {
-    const [secciones, setSecciones] = useState({});
-    const [mensajes, setMensajes] = useState({});
-    const [ultimaModificacion, setUltimaModificacion] = useState({});
+    const [basesContent, setBasesContent] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
-    // Cargar contenido y última modificación al montar el componente
     useEffect(() => {
-        const loadedSections = {};
-        const loadedModificacion = {};
-        BASES_SECTIONS.forEach(section => {
-            const savedContent = localStorage.getItem(section.key);
-            if (savedContent !== null) {
-                loadedSections[section.key] = savedContent;
-            } else {
-                loadedSections[section.key] = BASES_DEFAULT_CONTENT[section.key] || '';
+        const fetchBases = async () => {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('Error al cargar las bases.');
+                }
+                const data = await response.json();
+                setBasesContent(data.content);
+            } catch (err) {
+                console.error('Error al obtener las bases:', err);
+                setError('No se pudieron cargar las bases.');
+            } finally {
+                setLoading(false);
             }
-            const savedModificacion = localStorage.getItem(`${section.key}.modificacion`);
-            if (savedModificacion) {
-                loadedModificacion[section.key] = savedModificacion;
-            }
-        });
-        setSecciones(loadedSections);
-        setUltimaModificacion(loadedModificacion);
+        };
+
+        fetchBases();
     }, []);
 
-    // Manejar cambio en un textarea
-    const handleChange = (key, value) => {
-        setSecciones(prev => ({ ...prev, [key]: value }));
+    const handleChange = (e) => {
+        setBasesContent(e.target.value);
     };
 
-    // Función para guardar cambios de una sección
-    const handleGuardar = (key) => {
-        try {
-            localStorage.setItem(key, secciones[key]);
-            const now = new Date().toLocaleString();
-            localStorage.setItem(`${key}.modificacion`, now);
-            setUltimaModificacion(prev => ({ ...prev, [key]: now }));
-            setMensajes(prev => ({ ...prev, [key]: { text: 'Gardado!', type: 'success' } }));
+    const handleGuardar = async () => {
+        setSuccessMessage(null);
+        setError(null);
 
-            // Ocultar mensaje después de 3 segundos
-            setTimeout(() => {
-                setMensajes(prev => ({ ...prev, [key]: null }));
-            }, 3000);
-        } catch (error) {
-            console.error('Error al guardar sección:', key, error);
-            setMensajes(prev => ({ ...prev, [key]: { text: 'Erro ao gardar.', type: 'error' } }));
-             setTimeout(() => {
-                setMensajes(prev => ({ ...prev, [key]: null }));
-            }, 3000);
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: basesContent }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al guardar las bases.');
+            }
+
+            setSuccessMessage('Bases actualizadas correctamente.');
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            console.error('Error al guardar las bases:', err);
+            setError('No se pudieron guardar las bases.');
+            setTimeout(() => setError(null), 3000);
         }
     };
 
+    if (loading) {
+        return (
+            <div className="editor-bases-panel">
+                <p>Cargando bases...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="editor-bases-panel">
-             {/* Título general del panel, ya dentro de admin-card en AdminDashboard */}
-            {/* <h2 className="admin-card-title">Edición das bases do certame</h2> */}
-            
+            <h2>Edición de Bases del Certamen</h2>
+
+            {error && <div className="message error-message">{error}</div>}
+            {successMessage && <div className="message success-message">{successMessage}</div>}
+
             <div className="editor-bases-sections">
-                {BASES_SECTIONS.map(section => (
-                    <div key={section.key} className="bases-section-card admin-card">
-                        <h3 className="bases-section-title">{section.title}</h3>
-                        <textarea
-                            value={secciones[section.key] || ''}
-                            onChange={(e) => handleChange(section.key, e.target.value)}
-                            className="textarea-bases"
-                            placeholder={`Escribe aquí el contenido para ${section.title}...`}
-                        />
-                         <div className="bases-section-actions">
-                            <button
-                                onClick={() => handleGuardar(section.key)}
-                                className="btn-gardar"
-                            >
-                                Gardar
-                            </button>
-                            {ultimaModificacion[section.key] && (
-                                <span className="ultima-modificacion">
-                                    Última modificación: {ultimaModificacion[section.key]}
-                                </span>
-                            )}
-                            {mensajes[section.key] && (
-                                <span className={`mensaje-seccion ${mensajes[section.key].type === 'success' ? 'success' : 'error'}`}>
-                                    {mensajes[section.key].text}
-                                </span>
-                            )}
-                        </div>
+                <div className="bases-section-card admin-card">
+                    <h3 className="bases-section-title">Contenido Completo de las Bases</h3>
+                    <textarea
+                        value={basesContent}
+                        onChange={handleChange}
+                        className="textarea-bases"
+                        placeholder="Escribe aquí el contenido completo de las bases..."
+                        rows="20"
+                    />
+                    <div className="bases-section-actions">
+                        <button
+                            onClick={handleGuardar}
+                            className="btn-gardar"
+                        >
+                            Guardar Cambios
+                        </button>
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     );

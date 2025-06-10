@@ -1,0 +1,78 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Verificar archivos sensibles
+echo "🔍 Verificando archivos sensibles..."
+
+# Lista de patrones sensibles a buscar
+SENSITIVE_PATTERNS=(
+  "EMAIL_PASS="
+  "PASSWORD="
+  "SECRET="
+  "KEY="
+  "TOKEN="
+  "API_KEY="
+  "PRIVATE_KEY="
+)
+
+# Lista de archivos a ignorar en la búsqueda
+IGNORE_FILES=(
+  ".env.example"
+  "README.md"
+  "CHANGELOG.md"
+  "LICENSE"
+)
+
+# Función para verificar si un archivo debe ser ignorado
+should_ignore_file() {
+  local file=$1
+  for ignore in "${IGNORE_FILES[@]}"; do
+    if [[ $file == *"$ignore"* ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Buscar patrones sensibles en los archivos modificados
+FOUND_SENSITIVE=false
+for file in $(git diff --cached --name-only); do
+  if ! should_ignore_file "$file"; then
+    for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+      if git diff --cached "$file" | grep -q "$pattern"; then
+        echo "❌ ADVERTENCIA: Se encontró un patrón sensible en $file: $pattern"
+        FOUND_SENSITIVE=true
+      fi
+    done
+  fi
+done
+
+# Verificar si hay archivos .env en el commit
+if git diff --cached --name-only | grep -q "\.env$"; then
+  echo "❌ ERROR: No se permite hacer commit de archivos .env"
+  echo "Por favor, asegúrate de que .env está en .gitignore"
+  exit 1
+fi
+
+# Si se encontraron patrones sensibles, preguntar confirmación
+if [ "$FOUND_SENSITIVE" = true ]; then
+  echo "⚠️  Se encontraron posibles datos sensibles en los archivos."
+  echo "¿Estás seguro de que quieres continuar con el commit? (y/N)"
+  read -r response
+  if [[ ! "$response" =~ ^[Yy]$ ]]; then
+    echo "❌ Commit cancelado."
+    exit 1
+  fi
+fi
+
+# Verificar tamaño de archivos
+MAX_FILE_SIZE=5242880 # 5MB
+for file in $(git diff --cached --name-only); do
+  size=$(git cat-file -s "HEAD:$file" 2>/dev/null || echo 0)
+  if [ "$size" -gt "$MAX_FILE_SIZE" ]; then
+    echo "❌ ERROR: El archivo $file excede el tamaño máximo permitido (5MB)"
+    exit 1
+  fi
+done
+
+echo "✅ Verificación de seguridad completada" 
