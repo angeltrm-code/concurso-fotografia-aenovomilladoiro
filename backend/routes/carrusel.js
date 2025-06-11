@@ -72,23 +72,38 @@ router.get('/imagenes', (req, res) => {
     }
 });
 
-// Subir una nueva imagen
-router.post('/subir', upload.single('imagen'), (req, res) => {
+// Subir múltiples imágenes
+router.post('/subir', upload.array('imagenes', 10), async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'No se ha subido ninguna imagen' });
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: 'No se han subido imágenes' });
         }
-
-        res.json({
-            mensaje: 'Imagen subida correctamente',
-            imagen: {
-                nombre: req.file.filename,
-                url: `/carrusel/${req.file.filename}`
+        // Renombrar si hay colisiones
+        const carruselDir = path.join(__dirname, '..', 'uploads', 'carrusel');
+        const imagenes = req.files.map(file => {
+            let filename = file.filename;
+            let filepath = path.join(carruselDir, filename);
+            let base = path.parse(filename).name;
+            let ext = path.parse(filename).ext;
+            let counter = 1;
+            // Si existe, renombrar
+            while (fs.existsSync(filepath)) {
+                filename = `${base}(${counter})${ext}`;
+                filepath = path.join(carruselDir, filename);
+                counter++;
             }
+            if (filename !== file.filename) {
+                fs.renameSync(path.join(carruselDir, file.filename), filepath);
+            }
+            return {
+                nombre: filename,
+                url: `/carrusel/${filename}`
+            };
         });
+        res.json({ imagenes });
     } catch (error) {
-        console.error('Error al subir imagen:', error);
-        res.status(500).json({ error: 'Error al subir la imagen' });
+        console.error('Error al subir imágenes:', error);
+        res.status(500).json({ error: 'Error al subir las imágenes' });
     }
 });
 

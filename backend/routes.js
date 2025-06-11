@@ -18,8 +18,8 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 // Montar rutas del carrusel y bases
-router.use('/carrusel', verifyToken, carruselRoutes);
-router.use('/bases', verifyToken, basesRoutes);
+router.use('/carrusel', carruselRoutes);
+router.use('/bases', basesRoutes);
 
 // Ruta de prueba
 router.get('/test', (req, res) => {

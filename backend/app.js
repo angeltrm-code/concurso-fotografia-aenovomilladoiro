@@ -14,6 +14,16 @@ import dotenv from 'dotenv';
 // Cargar variables de entorno
 dotenv.config();
 
+// Verificar variables de entorno críticas
+const requiredEnvVars = ['ADMIN_USER', 'ADMIN_PASS_HASH', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+    console.error('Error: Faltan las siguientes variables de entorno requeridas:');
+    missingEnvVars.forEach(varName => console.error(`- ${varName}`));
+    process.exit(1);
+}
+
 // Simular __dirname y __filename en módulos ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
