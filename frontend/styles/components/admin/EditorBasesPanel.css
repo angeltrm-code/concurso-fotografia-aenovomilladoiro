@@ -3,11 +3,12 @@
     /* Los estilos de tarjeta principal vienen de .admin-card en AdminDashboard.css */
     width: 100%;
     box-sizing: border-box;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
     margin-top: 2rem;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .editor-bases-sections {
@@ -18,40 +19,58 @@
 
 .bases-section-card.admin-card {
     /* Hereda estilos de .admin-card. Asegurar que no haya padding doble si se aplicó en el padre */
-    padding: 1.5rem; /* Mantener el padding de la tarjeta */
-    margin-bottom: 0; /* Eliminamos el margen inferior si el gap en .editor-bases-sections maneja el espaciado */
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 8px rgba(44, 65, 94, 0.08);
+    padding: 2rem 2.5rem;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: box-shadow 0.3s, transform 0.3s;
 }
 
-.bases-section-title {
-    font-size: 1rem; /* Ajustar tamaño del título de sección */
+.bases-section-card.moving {
+    box-shadow: 0 8px 32px 0 rgba(44,65,94,0.18), 0 3px 12px 0 rgba(44,65,94,0.12);
+    transform: scale(1.03) translateY(-8px);
+}
+
+.bases-section-title-input {
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #111827;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e5e7eb; /* Separador visual */
+    color: #2C415E;
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    background: transparent;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.bases-section-title-input:focus {
+    border-color: #2C415E;
 }
 
-.textarea-bases {
+.bases-section-content-input {
     width: 100%;
-    min-height: 150px; /* Altura mínima solicitada */
-    padding: 0.75rem 1rem; /* Padding interno */
-    border: 1px solid #e5e7eb; /* Borde suave */
-    border-radius: 8px;
+    min-height: 80px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
     font-family: 'Montserrat', sans-serif;
     font-size: 1rem;
     line-height: 1.5;
-    resize: vertical; /* Permitir redimensionar verticalmente */
-    margin-bottom: 1rem; /* Espacio antes de las acciones */
-    box-sizing: border-box;
+    resize: vertical;
     background-color: #fff;
     color: #333;
+    box-sizing: border-box;
+    margin-bottom: 0.5rem;
+    transition: border-color 0.2s;
 }
-
-.textarea-bases:focus {
+.bases-section-content-input:focus {
     outline: none;
-    border-color: #111827; /* Borde al enfocar */
-    box-shadow: 0 0 0 1px #111827; /* Sombra sutil al enfocar */
+    border-color: #2C415E;
+    box-shadow: 0 0 0 1px #2C415E;
 }
 
 .bases-section-actions {
@@ -61,62 +80,147 @@
     flex-wrap: wrap; /* Asegura que los elementos se envuelvan en pantallas pequeñas */
 }
 
-.btn-gardar {
-    background: #111827;
-    color: white;
+.btn-guardar {
+    background: #2C415E;
+    color: #fff;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: 0.6rem 1.4rem;
+    border-radius: 1.2rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(44, 65, 94, 0.08);
+}
+.btn-guardar:hover:not(:disabled) {
+    background: #22324a;
+    box-shadow: 0 4px 16px rgba(44, 65, 94, 0.12);
+}
+.btn-guardar:disabled {
+    background: #bfc8d6;
+    cursor: not-allowed;
 }
 
-.btn-gardar:hover {
-    background: #1f2937;
+.btn-mover {
+    background: #eaf0fa;
+    border: 2px solid #2C415E;
+    color: #2C415E;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-mover:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.btn-mover:hover:not(:disabled) {
+    background: #d2e2fa;
+    color: #16304d;
+    box-shadow: 0 2px 8px rgba(44,65,94,0.10);
 }
 
-.ultima-modificacion {
-    font-size: 0.875rem;
-    color: #6b7280; /* Color gris para la fecha */
+.btn-eliminar {
+    background: #fff0f0;
+    border: 2px solid #FF6700;
+    color: #FF6700;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.btn-eliminar:hover {
+    background: #ffe5d6;
+    color: #c13c00;
+    box-shadow: 0 2px 8px rgba(255,103,0,0.10);
 }
 
-.mensaje-seccion {
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+.nueva-seccion {
+    border: 2px dashed #bfc8d6;
+    background: #f8fafc;
 }
 
-.mensaje-seccion.success {
-    background: #dcfce7;
-    color: #166534;
+.error-message {
+    background: #fff5f5;
+    color: #c53030;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #feb2b2;
+    font-weight: 500;
+    text-align: center;
 }
-
-.mensaje-seccion.error {
-    background: #fee2e2;
-    color: #991b1b;
+.success-message {
+    background: #f0fff4;
+    color: #2f855a;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #9ae6b4;
+    font-weight: 500;
+    text-align: center;
+}
+.galeria-empty {
+    text-align: center;
+    color: #718096;
+    padding: 3rem;
+    border: 2px dashed #e5e7eb;
+    border-radius: 1rem;
+    background: #f8fafc;
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+    .bases-section-card.admin-card {
+        padding: 1.2rem 0.5rem;
+    }
+}
 @media (max-width: 600px) {
     .bases-section-card.admin-card {
-        padding: 1rem;
+        padding: 1rem 0.2rem;
     }
-
     .bases-section-actions {
         flex-direction: column;
-        align-items: flex-start; /* Alinea los elementos a la izquierda en móvil */
+        align-items: flex-start;
         gap: 0.75rem;
     }
-
-    .btn-gardar {
-        width: 100%; /* Botón de guardar ocupa todo el ancho en móvil */
+    .btn-guardar, .btn-eliminar {
+        width: 100%;
         text-align: center;
     }
+}
 
-    .ultima-modificacion,
-    .mensaje-seccion {
-        width: 100%; /* Ocupan todo el ancho */
-        text-align: center;
-    }
+.icon-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem 0;
+}
+.icon-btn {
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 0.25rem 0.25rem;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover {
+  border: 2px solid #2C415E;
+  box-shadow: 0 2px 8px rgba(44,65,94,0.08);
+}
+.icon-btn.selected {
+  border: 2px solid #2C415E;
+  background: #eaf0fa;
+  box-shadow: 0 2px 8px rgba(44,65,94,0.12);
 } 

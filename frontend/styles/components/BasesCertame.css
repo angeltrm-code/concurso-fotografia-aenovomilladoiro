@@ -18,6 +18,13 @@
   margin-bottom: 2.5rem;
 }
 
+.bases-btn-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
 .bases-cards-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -34,7 +41,7 @@
 
 @media (min-width: 1024px) {
   .bases-cards-container {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -49,6 +56,8 @@
   align-items: center;
   text-align: center;
   transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 320px;
+  justify-content: flex-start;
 }
 
 .base-card:hover {
@@ -75,12 +84,10 @@
   opacity: 0.85;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-}
-
-.bases-btn-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  text-align: center;
+  line-height: 1.7;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .download-button {

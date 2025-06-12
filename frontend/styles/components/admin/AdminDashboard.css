@@ -1,0 +1,168 @@
+.admin-dashboard {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2C415E 0%, #3a5373 100%);
+    font-family: 'Montserrat', sans-serif;
+    padding: 3rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-header {
+    background: #FFFFFF;
+    padding: 2rem 2.5rem;
+    border-radius: 2rem;
+    box-shadow: 0 4px 16px rgba(44, 65, 94, 0.10);
+    margin-bottom: 2.5rem;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.admin-header-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-title {
+    color: #2C415E;
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.admin-welcome {
+    color: #666;
+    font-size: 1rem;
+}
+
+.admin-logout-button {
+    background: #e53e3e;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(44, 65, 94, 0.08);
+}
+
+.admin-logout-button:hover {
+    background: #b91c1c;
+    box-shadow: 0 4px 16px rgba(44, 65, 94, 0.12);
+}
+
+.admin-section {
+    background: #FFFFFF;
+    border-radius: 2rem;
+    box-shadow: 0 4px 16px rgba(44, 65, 94, 0.10);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-subtitle {
+    color: #2C415E;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.admin-card {
+    background: #F8F9FA;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(44, 65, 94, 0.06);
+}
+
+.admin-card-content {
+    min-height: 200px;
+}
+
+.admin-dashboard-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #2C415E;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.error-msg {
+    color: #dc3545;
+    padding: 1rem;
+    background: #f8d7da;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .admin-header, .admin-section {
+        padding: 1.2rem 0.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-header, .admin-section {
+        max-width: 100%;
+        padding: 1rem 0.2rem;
+    }
+    .admin-title {
+        font-size: 1.3rem;
+    }
+    .admin-subtitle {
+        font-size: 1.1rem;
+    }
+}
+
+.admin-bases-pdf-panel.card-separada {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 1.2rem;
+    box-shadow: 0 2px 8px rgba(44,65,94,0.08);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.pdf-panel-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2C415E;
+    margin-bottom: 1.2rem;
+}
+
+.admin-bases-pdf-panel input[type="file"] {
+    font-size: 1rem;
+    padding: 0.2rem 0.5rem;
+}
+
+.admin-bases-pdf-panel .btn-eliminar {
+    margin-left: 0;
+    margin-top: 0;
+} 

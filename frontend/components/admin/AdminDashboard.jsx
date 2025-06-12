@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CarruselAdminPanel from './CarruselAdminPanel';
 import EditorBasesPanel from './EditorBasesPanel';
-import { getToken } from '../../utils/auth';
+import AdminBasesPDFPanel from './AdminBasesPDFPanel';
+import { getToken, removeToken, fetchWithAuth } from '../../utils/tokenUtils';
 import '../../styles/components/admin/AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -19,15 +20,7 @@ const AdminDashboard = () => {
                 return;
             }
             try {
-                // Validar token haciendo una petición protegida
-                const res = await fetch('/api/bases', {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                if (res.status === 401 || res.status === 403) {
-                    localStorage.removeItem('adminToken');
-                    navigate('/admin/login');
-                    return;
-                }
+                await fetchWithAuth('/api/bases');
                 setIsLoggedIn(true);
             } catch (err) {
                 navigate('/admin/login');
@@ -39,7 +32,7 @@ const AdminDashboard = () => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('adminToken');
+        removeToken();
         navigate('/admin/login');
     };
 
@@ -49,17 +42,21 @@ const AdminDashboard = () => {
     return (
         <main className="admin-dashboard">
             <header className="admin-header">
-                <h1 className="admin-title">Panel de Administración</h1>
-                <button onClick={handleLogout} className="btn-logout">
-                    Cerrar Sesión
-                </button>
+                <div className="admin-header-content">
+                    <h1 className="admin-title">Panel de Administración</h1>
+                    <div className="admin-user-info">
+                        <button onClick={handleLogout} className="admin-logout-button">
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
             </header>
 
             <section className="admin-section">
                 <h2 className="admin-subtitle">Xestión de Participantes</h2>
                 <div className="admin-card">
                     <div className="admin-card-content">
-                         {participantsError ? (
+                        {participantsError ? (
                             <div className="error-msg">
                                 Error al cargar los participantes: {participantsError}
                             </div>
@@ -71,15 +68,16 @@ const AdminDashboard = () => {
             </section>
 
             <section className="admin-section">
-                 <h2 className="admin-subtitle">Xestión da Galería de Imaxes</h2>
+                <h2 className="admin-subtitle">Xestión da Galería de Imaxes</h2>
                 <div className="admin-card">
-                     <CarruselAdminPanel />
+                    <CarruselAdminPanel />
                 </div>
             </section>
 
             <section className="admin-section">
                 <h2 className="admin-subtitle">Edición das Bases do Certame</h2>
                 <div className="admin-card">
+                    <AdminBasesPDFPanel />
                     <EditorBasesPanel />
                 </div>
             </section>

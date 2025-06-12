@@ -1,4 +1,83 @@
-# XI Certame de Fotografía - Backend Moderno (Node.js + Express)
+# XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro
+
+## Estructura del Proyecto
+
+```
+.
+├── frontend/           # Aplicación React + Vite
+│   ├── src/           # Código fuente del frontend
+│   ├── public/        # Archivos estáticos
+│   └── package.json   # Dependencias del frontend
+├── backend/           # API Node.js + Express
+│   ├── routes/        # Rutas de la API
+│   ├── services/      # Servicios (email, etc)
+│   ├── utils/         # Utilidades
+│   └── package.json   # Dependencias del backend
+└── package.json       # Scripts comunes y configuración
+```
+
+## Requisitos
+
+- Node.js >= 18
+- npm >= 9
+
+## Instalación
+
+1. Clonar el repositorio:
+```bash
+git clone [url-del-repositorio]
+cd concurso-fotografia-aenovomilladoiro
+```
+
+2. Instalar dependencias:
+```bash
+npm run install:all
+```
+
+3. Configurar variables de entorno:
+   - Copiar `.env.example` a `.env` en la carpeta backend
+   - Ajustar las variables según sea necesario
+
+## Desarrollo
+
+Para iniciar el entorno de desarrollo:
+
+```bash
+npm run dev
+```
+
+Esto iniciará:
+- Frontend en http://localhost:5173
+- Backend en http://localhost:3000
+
+## Scripts Disponibles
+
+- `npm run dev` - Inicia frontend y backend en modo desarrollo
+- `npm run dev:frontend` - Solo frontend en modo desarrollo
+- `npm run dev:backend` - Solo backend en modo desarrollo
+- `npm run build` - Construye el frontend para producción
+- `npm start` - Inicia el backend en modo producción
+- `npm run lint` - Ejecuta el linter en frontend y backend
+
+## Estructura de Carpetas
+
+### Frontend
+- `src/components/` - Componentes React
+- `src/pages/` - Páginas principales
+- `src/utils/` - Utilidades y helpers
+- `src/styles/` - Estilos CSS
+- `src/config/` - Configuración (API, etc)
+
+### Backend
+- `routes/` - Definición de rutas API
+- `services/` - Servicios (email, etc)
+- `utils/` - Utilidades y helpers
+- `middleware/` - Middlewares de Express
+- `data/` - Datos estáticos (bases, etc)
+
+## Documentación API
+
+Ver `backend/API_README.md` para la documentación completa de la API.
 
 Este backend gestiona las participaciones del XI Certame de Fotografía Comercial do Parque Empresarial do Milladoiro. Permite recibir datos y fotos de los participantes, guardar los archivos y registrar todas las participaciones, además de enviar correos automáticos de confirmación y notificación.
 

@@ -6,8 +6,8 @@ import PhotoCarousel from "./components/PhotoCarousel";
 import BasesCertame from "./components/BasesCertame";
 import Footer from "./components/Footer";
 import AdminLogin from "./components/admin/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
-import { isAuthenticated } from "./utils/auth";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import { isAuthenticated } from "./utils/tokenUtils";
 import "./styles/main.css";
 
 // Componente para proteger rutas de administración

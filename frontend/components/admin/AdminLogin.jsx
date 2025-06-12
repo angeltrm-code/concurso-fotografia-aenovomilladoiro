@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setToken } from '../../utils/tokenUtils';
+import { API_ENDPOINTS, handleApiError } from '../../config/apiConfig';
 import '../../styles/components/admin/AdminLogin.css';
 
 const AdminLogin = () => {
@@ -15,17 +17,17 @@ const AdminLogin = () => {
         setError('');
         setIsLoading(true);
         try {
-            const res = await fetch('/api/admin/login', {
+            const res = await fetch(API_ENDPOINTS.LOGIN, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Error de autenticación');
-            localStorage.setItem('adminToken', data.token);
+            setToken(data.token);
             navigate('/admin');
         } catch (err) {
-            setError(err.message);
+            setError(handleApiError(err, navigate));
         } finally {
             setIsLoading(false);
         }
