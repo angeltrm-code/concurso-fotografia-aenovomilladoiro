@@ -12,7 +12,8 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true
-      }
+      },
+      '/bases.pdf': 'http://localhost:3001'
     }
   },
   build: {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/components/PhotoUpload.css";
 
 const OBLIGATORIO = <span style={{ color: '#e53e3e' }}>*</span>;
@@ -26,6 +26,30 @@ const PhotoUpload = () => {
   const [showModal, setShowModal] = useState(false);
   const [codigoRexistro, setCodigoRexistro] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [charCounts, setCharCounts] = useState({
+    titulo: 0,
+    descripcion: 0
+  });
+
+  // Validación en tiempo real
+  useEffect(() => {
+    const newErrors = {};
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "O email non é válido";
+    }
+    if (formData.telefono && !/^[0-9]{9}$/.test(formData.telefono)) {
+      newErrors.telefono = "O teléfono debe ter 9 díxitos";
+    }
+    setErrors(prev => ({ ...prev, ...newErrors }));
+  }, [formData.email, formData.telefono]);
+
+  // Actualizar contadores de caracteres
+  useEffect(() => {
+    setCharCounts({
+      titulo: formData.titulo.length,
+      descripcion: formData.descripcion.length
+    });
+  }, [formData.titulo, formData.descripcion]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -183,9 +207,32 @@ const PhotoUpload = () => {
   // Función para cerrar la modal
   const closeModal = () => setShowModal(false);
 
+  // Componente de breadcrumb
+  const Breadcrumb = () => (
+    <nav className="breadcrumb" aria-label="Navegación">
+      <div className="breadcrumb-item">
+        <a href="/" className="breadcrumb-link">Inicio</a>
+      </div>
+      <div className="breadcrumb-item">
+        <span>Participar</span>
+      </div>
+    </nav>
+  );
+
+  // Componente de modal de imagen
+  const ImageModal = () => (
+    <div className="image-modal" onClick={closeModal}>
+      <div className="image-modal-content" onClick={e => e.stopPropagation()}>
+        <button className="image-modal-close" onClick={closeModal} aria-label="Cerrar">×</button>
+        <img src={imagePreview} alt="Vista previa de la imagen" />
+      </div>
+    </div>
+  );
+
   if (showSummary) {
     return (
       <div className="form-section">
+        <Breadcrumb />
         <div className="form-card">
           <h3 className="form-title">Confirma os teus datos</h3>
           <div style={{ width: '100%' }}>
@@ -200,7 +247,9 @@ const PhotoUpload = () => {
             {imagePreview && (
               <div className="form-group">
                 <b>Imaxe:</b><br />
-                <img src={imagePreview} alt="Previsualización" style={{ maxHeight: 180, borderRadius: 12, margin: '1rem auto' }} />
+                <div className="image-preview-container">
+                  <img src={imagePreview} alt="Previsualización" className="image-preview" />
+                </div>
               </div>
             )}
           </div>
@@ -229,11 +278,20 @@ const PhotoUpload = () => {
   if (successMessage && codigoRexistro) {
     return (
       <div className="form-section">
-        <div className="form-card" style={{ textAlign: 'center', padding: '2.5rem 2rem' }}>
-          <h2 style={{ color: '#2C415E', marginBottom: 24 }}>Participación enviada</h2>
-          <div style={{ fontSize: '1.15rem', color: '#222', marginBottom: 18 }}>{successMessage}</div>
-          <div style={{ fontWeight: 700, color: '#2C415E', fontSize: '1.3rem', margin: '1.5rem 0' }}>{codigoRexistro}</div>
-          <button className="form-submit-btn" onClick={() => { setCodigoRexistro(null); setSuccessMessage(""); }}>Nova participación</button>
+        <Breadcrumb />
+        <div className="form-card success-message">
+          <h2>Participación enviada</h2>
+          <div>{successMessage}</div>
+          <div className="code">{codigoRexistro}</div>
+          <button 
+            className="form-submit-btn" 
+            onClick={() => { 
+              setCodigoRexistro(null); 
+              setSuccessMessage(""); 
+            }}
+          >
+            Nova participación
+          </button>
         </div>
       </div>
     );
@@ -241,119 +299,260 @@ const PhotoUpload = () => {
 
   return (
     <div className="form-section">
+      <Breadcrumb />
       <form onSubmit={handleSubmit} className="form-card">
         <h2 className="form-title">Formulario de participación</h2>
+        
         <div className="form-group">
-          <label className="form-label">Nome {OBLIGATORIO}</label>
-          <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="form-input" placeholder="O teu nome" />
-          {errors.nombre && <div className="form-error">{errors.nombre}</div>}
+          <label className="form-label" htmlFor="nombre">Nome {OBLIGATORIO}</label>
+          <input 
+            type="text" 
+            id="nombre"
+            name="nombre" 
+            value={formData.nombre} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="O teu nome"
+            aria-required="true"
+          />
+          {errors.nombre && <div className="form-error" role="alert">{errors.nombre}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">Apelidos {OBLIGATORIO}</label>
-          <input type="text" name="apellidos" value={formData.apellidos} onChange={handleChange} className="form-input" placeholder="Os teus apelidos" />
-          {errors.apellidos && <div className="form-error">{errors.apellidos}</div>}
+          <label className="form-label" htmlFor="apellidos">Apelidos {OBLIGATORIO}</label>
+          <input 
+            type="text" 
+            id="apellidos"
+            name="apellidos" 
+            value={formData.apellidos} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="Os teus apelidos"
+            aria-required="true"
+          />
+          {errors.apellidos && <div className="form-error" role="alert">{errors.apellidos}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">Email {OBLIGATORIO}</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" placeholder="O teu email" />
-          {errors.email && <div className="form-error">{errors.email}</div>}
+          <label className="form-label" htmlFor="email">Email {OBLIGATORIO}</label>
+          <input 
+            type="email" 
+            id="email"
+            name="email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="O teu email"
+            aria-required="true"
+          />
+          {errors.email && <div className="form-error" role="alert">{errors.email}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">Teléfono {OBLIGATORIO}</label>
-          <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} className="form-input" placeholder="O teu teléfono" />
-          {errors.telefono && <div className="form-error">{errors.telefono}</div>}
+          <label className="form-label" htmlFor="telefono">Teléfono {OBLIGATORIO}</label>
+          <input 
+            type="tel" 
+            id="telefono"
+            name="telefono" 
+            value={formData.telefono} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="O teu teléfono"
+            aria-required="true"
+          />
+          {errors.telefono && <div className="form-error" role="alert">{errors.telefono}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">NIF/NIE {OBLIGATORIO}</label>
-          <input type="text" name="nifnie" value={formData.nifnie} onChange={handleChange} className="form-input" placeholder="O teu NIF ou NIE" />
-          {errors.nifnie && <div className="form-error">{errors.nifnie}</div>}
+          <label className="form-label" htmlFor="nifnie">NIF/NIE {OBLIGATORIO}</label>
+          <input 
+            type="text" 
+            id="nifnie"
+            name="nifnie" 
+            value={formData.nifnie} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="O teu NIF ou NIE"
+            aria-required="true"
+          />
+          {errors.nifnie && <div className="form-error" role="alert">{errors.nifnie}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">Enderezo {OBLIGATORIO}</label>
-          <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="form-input" placeholder="O teu enderezo" />
-          {errors.direccion && <div className="form-error">{errors.direccion}</div>}
+          <label className="form-label" htmlFor="direccion">Enderezo {OBLIGATORIO}</label>
+          <input 
+            type="text" 
+            id="direccion"
+            name="direccion" 
+            value={formData.direccion} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="O teu enderezo"
+            aria-required="true"
+          />
+          {errors.direccion && <div className="form-error" role="alert">{errors.direccion}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">Título da imaxe {OBLIGATORIO}</label>
-          <input type="text" name="titulo" value={formData.titulo} onChange={handleChange} className="form-input" placeholder="Título para a túa fotografía" />
-          {errors.titulo && <div className="form-error">{errors.titulo}</div>}
+          <label className="form-label" htmlFor="titulo">Título {OBLIGATORIO}</label>
+          <input 
+            type="text" 
+            id="titulo"
+            name="titulo" 
+            value={formData.titulo} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="Título da fotografía"
+            maxLength={100}
+            aria-required="true"
+          />
+          <div className={`char-counter ${charCounts.titulo > 80 ? 'warning' : ''}`}>
+            {charCounts.titulo}/100
+          </div>
+          {errors.titulo && <div className="form-error" role="alert">{errors.titulo}</div>}
         </div>
+
         <div className="form-group">
-          <label className="form-label">Descrición da imaxe {OBLIGATORIO}</label>
-          <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows="4" className="form-textarea" placeholder="Describe brevemente a túa fotografía"></textarea>
-          {errors.descripcion && <div className="form-error">{errors.descripcion}</div>}
+          <label className="form-label" htmlFor="descripcion">Descrición {OBLIGATORIO}</label>
+          <textarea 
+            id="descripcion"
+            name="descripcion" 
+            value={formData.descripcion} 
+            onChange={handleChange} 
+            className="form-input" 
+            placeholder="Descrición da fotografía"
+            maxLength={500}
+            rows={4}
+            aria-required="true"
+          />
+          <div className={`char-counter ${charCounts.descripcion > 400 ? 'warning' : ''}`}>
+            {charCounts.descripcion}/500
+          </div>
+          {errors.descripcion && <div className="form-error" role="alert">{errors.descripcion}</div>}
         </div>
+
         <div className="form-group">
           <label className="form-label">¿Aparecen persoas recoñecibles na fotografía? {OBLIGATORIO}</label>
           <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', marginTop: 4 }}>
             <label style={{ fontWeight: 500 }}>
-              <input type="checkbox" name="persoasRecoñecibles" checked={formData.persoasRecoñecibles} onChange={handleChange} /> Si
+              <input 
+                type="checkbox" 
+                name="persoasRecoñecibles" 
+                checked={formData.persoasRecoñecibles} 
+                onChange={handleChange}
+                aria-label="Si aparecen persoas recoñecibles"
+              /> Si
             </label>
             <label style={{ fontWeight: 500 }}>
-              <input type="checkbox" name="persoasRecoñecibles" checked={!formData.persoasRecoñecibles} onChange={() => setFormData((prev) => ({ ...prev, persoasRecoñecibles: false, autorizacion: null }))} /> Non
+              <input 
+                type="checkbox" 
+                name="persoasRecoñecibles" 
+                checked={!formData.persoasRecoñecibles} 
+                onChange={() => setFormData((prev) => ({ ...prev, persoasRecoñecibles: false, autorizacion: null }))}
+                aria-label="Non aparecen persoas recoñecibles"
+              /> Non
             </label>
           </div>
         </div>
+
         {formData.persoasRecoñecibles && (
           <div className="form-group">
-            <label className="form-label">Autorización para persoas recoñecibles (PDF/JPG/PNG) {OBLIGATORIO}</label>
-            <input type="file" name="autorizacion" accept=".pdf,image/jpeg,image/jpg,image/png" onChange={handleAutorizacionChange} className="form-input" />
-            {errors.autorizacion && <div className="form-error">{errors.autorizacion}</div>}
+            <label className="form-label" htmlFor="autorizacion">
+              Autorización para persoas recoñecibles (PDF/JPG/PNG) {OBLIGATORIO}
+            </label>
+            <input 
+              type="file" 
+              id="autorizacion"
+              name="autorizacion" 
+              accept=".pdf,image/jpeg,image/jpg,image/png" 
+              onChange={handleAutorizacionChange} 
+              className="form-input"
+              aria-required="true"
+            />
+            {errors.autorizacion && <div className="form-error" role="alert">{errors.autorizacion}</div>}
           </div>
         )}
+
         <div className="form-group">
-          <label className="form-label">Data de nacemento {OBLIGATORIO}</label>
-          <input type="date" name="dataNacemento" value={formData.dataNacemento} onChange={handleDataNacementoChange} className="form-input" max={new Date().toISOString().split('T')[0]} />
-          {errors.dataNacemento && <div className="form-error">{errors.dataNacemento}</div>}
+          <label className="form-label" htmlFor="dataNacemento">Data de nacemento {OBLIGATORIO}</label>
+          <input 
+            type="date" 
+            id="dataNacemento"
+            name="dataNacemento" 
+            value={formData.dataNacemento} 
+            onChange={handleDataNacementoChange} 
+            className="form-input" 
+            max={new Date().toISOString().split('T')[0]}
+            aria-required="true"
+          />
+          {errors.dataNacemento && <div className="form-error" role="alert">{errors.dataNacemento}</div>}
         </div>
+
         {idade !== null && idade < 18 && (
           <div className="form-group">
-            <label className="form-label">Autorización do/a titor/a legal (PDF/JPG/PNG) {OBLIGATORIO}</label>
-            <input type="file" name="autorizacionTutor" accept=".pdf,image/jpeg,image/jpg,image/png" onChange={handleAutorizacionTutorChange} className="form-input" />
+            <label className="form-label" htmlFor="autorizacionTutor">
+              Autorización do/a titor/a legal (PDF/JPG/PNG) {OBLIGATORIO}
+            </label>
+            <input 
+              type="file" 
+              id="autorizacionTutor"
+              name="autorizacionTutor" 
+              accept=".pdf,image/jpeg,image/jpg,image/png" 
+              onChange={handleAutorizacionTutorChange} 
+              className="form-input"
+              aria-required="true"
+            />
             <div className="form-info" style={{ color: '#2C415E', fontSize: '0.98rem', marginTop: 4 }}>
               Se a persoa participante é menor de idade, debe achegar unha autorización asinada polo/a titor/a legal.
             </div>
-            {errors.autorizacionTutor && <div className="form-error">{errors.autorizacionTutor}</div>}
+            {errors.autorizacionTutor && <div className="form-error" role="alert">{errors.autorizacionTutor}</div>}
           </div>
         )}
+
         <div className="form-group">
-          <label className="form-label">Imaxe {OBLIGATORIO}</label>
+          <label className="form-label" htmlFor="foto">Imaxe {OBLIGATORIO}</label>
           <div className="form-file-wrapper">
             <label className="form-file-label">
               <input
                 type="file"
+                id="foto"
                 name="foto"
                 accept="image/jpeg,image/jpg"
                 onChange={handleImageChange}
                 className="form-file-input"
+                aria-required="true"
               />
               <span className="form-file-text">Seleccionar imaxe</span>
             </label>
             {imagePreview && (
               <div className="form-group">
                 <label className="form-label">Imaxe seleccionada:</label>
-                <div className="image-preview-thumbnail" onClick={openModal}>
-                  <img src={imagePreview} alt="Previsualización" className="thumbnail-image" />
-                  <div className="remove-image-btn" onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}>X</div>
+                <div className="image-preview-container" onClick={openModal}>
+                  <img src={imagePreview} alt="Previsualización" className="image-preview" />
+                  <button 
+                    className="remove-image-btn" 
+                    onClick={(e) => { e.stopPropagation(); handleRemoveImage(); }}
+                    aria-label="Eliminar imaxe"
+                  >
+                    ×
+                  </button>
                 </div>
-                {errors.foto && <div className="form-error">{errors.foto}</div>}
+                {errors.foto && <div className="form-error" role="alert">{errors.foto}</div>}
               </div>
             )}
           </div>
         </div>
-        <button type="submit" className="form-submit-btn" disabled={isSubmitting}>
-          {isSubmitting ? 'Enviando...' : 'Enviar'}
+
+        <button 
+          type="submit" 
+          className="form-submit-btn"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Enviando...' : 'Enviar participación'}
         </button>
       </form>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <span className="close-button" onClick={closeModal}>&times;</span>
-            <img src={imagePreview} alt="Previsualización" className="modal-image" />
-          </div>
-        </div>
-      )}
+      {showModal && <ImageModal />}
     </div>
   );
 };

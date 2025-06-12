@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR || 'uploads')));
 app.use('/carrusel', express.static(path.join(__dirname, process.env.CARRUSEL_DIR || 'uploads/carrusel')));
 app.use('/data', express.static(path.join(__dirname, 'data')));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rate limiting para prevenir flood
 const limiter = rateLimit({
